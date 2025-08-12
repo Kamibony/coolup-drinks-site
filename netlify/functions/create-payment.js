@@ -27,8 +27,8 @@ exports.handler = async (event) => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        // CORREÇÃO: A palavra 'Bearer' deve ser uma string dentro do cabeçalho.
-        'Authorization': Bearer ,
+        // CORREÃ‡ÃƒO FINAL: A palavra 'Bearer' deve ser uma string dentro do cabeÃ§alho.
+        'Authorization': `Bearer ${accessToken}`,
       },
       body: JSON.stringify(preference),
     });
@@ -36,7 +36,7 @@ exports.handler = async (event) => {
     if (!response.ok) { throw new Error(JSON.stringify(data)); }
     return { statusCode: 200, body: JSON.stringify({ init_point: data.init_point }) };
   } catch (error) {
-    console.error('Erro ao criar preferência de pagamento:', error.toString());
-    return { statusCode: 500, body: JSON.stringify({ error: 'Não foi possível criar o link de pagamento.' }) };
+    console.error('Erro ao criar preferÃªncia de pagamento:', error.toString());
+    return { statusCode: 500, body: JSON.stringify({ error: 'NÃ£o foi possÃ­vel criar o link de pagamento.' }) };
   }
 };
