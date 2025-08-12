@@ -13,9 +13,14 @@ exports.handler = async (event) => {
         title: item.name,
         quantity: item.quantity,
         currency_id: 'BRL',
-        unit_price: Math.round(item.price * 100),
+        // CORREÇÃO FINAL: O Mercado Pago espera o valor em Reais, não em centavos.
+        unit_price: item.price,
       })),
-      shipments: { cost: 500, mode: 'not_specified' },
+      shipments: { 
+        // CORREÇÃO FINAL: O custo do frete também deve ser em Reais.
+        cost: 5.00, 
+        mode: 'not_specified' 
+      },
       back_urls: {
         success: 'https://coolup.netlify.app/',
         failure: 'https://coolup.netlify.app/',
@@ -27,7 +32,6 @@ exports.handler = async (event) => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        // CORREÇÃO FINAL: A palavra 'Bearer' deve ser uma string dentro do cabeçalho.
         'Authorization': `Bearer ${accessToken}`,
       },
       body: JSON.stringify(preference),
