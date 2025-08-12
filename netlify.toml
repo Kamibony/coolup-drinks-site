@@ -1,8 +1,4 @@
-# Ficheiro de configuração explícito para a Netlify
 [build]
-  # Comando de build para forçar a Netlify a processar as funções.
-  command = "echo 'Build in progress...'"
-  # Diz à Netlify que o site a ser publicado está na pasta principal (.).
+  command = "npm install"
   publish = "." 
-  # Diz à Netlify onde encontrar as funções.
   functions = "netlify/functions"

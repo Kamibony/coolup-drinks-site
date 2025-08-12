@@ -1,5 +1,8 @@
 {
+  "name": "coolup-netlify-functions",
+  "version": "1.0.0",
+  "description": "Funções serverless para o site CoolUp Drinks",
   "dependencies": {
-    "node-fetch": "^2.6.0"
+    "node-fetch": "^2.6.7"
   }
 }
