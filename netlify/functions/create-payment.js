@@ -25,7 +25,11 @@ exports.handler = async (event) => {
     };
     const response = await fetch('https://api.mercadopago.com/checkout/preferences', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': Bearer  },
+      headers: {
+        'Content-Type': 'application/json',
+        // CORREÇÃO: A palavra 'Bearer' deve ser uma string dentro do cabeçalho.
+        'Authorization': Bearer ,
+      },
       body: JSON.stringify(preference),
     });
     const data = await response.json();
