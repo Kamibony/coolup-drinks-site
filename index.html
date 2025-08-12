@@ -123,7 +123,7 @@
         async function getApiResponse(prompt) {
             // Agora chama a nossa função Netlify segura em vez da API do Gemini diretamente
             try {
-                const response = await fetch('/netlify/functions/get-gemini-response', {
+                const response = await fetch('/.netlify/functions/get-gemini-response', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ prompt })
@@ -507,7 +507,7 @@
             
             try {
                 // Chama a nossa função Netlify
-                const response = await fetch('/netlify/functions/create-payment', {
+                const response = await fetch('/.netlify/functions/create-payment', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ items: chatState.cart })
@@ -540,4 +540,5 @@
     </script>
 </body>
 </html>
+
 
