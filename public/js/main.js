@@ -1,10 +1,10 @@
-// ImportaÁıes dos mÛdulos da Firebase
+// Importa√ß√µes dos m√≥dulos da Firebase
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
 import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
 import { getFirestore, collection, onSnapshot, doc, addDoc, setDoc, deleteDoc, getDocs } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
 
 // =================================================================================
-// 1. CONFIGURA«√O DA FIREBASE
+// 1. CONFIGURA√á√ÉO DA FIREBASE
 // =================================================================================
 const firebaseConfig = {
     apiKey: "AIzaSyBMQNvxHmLvRmTJ_6ttje71T2hnynhvQrM", // Mantenha as suas chaves aqui
@@ -16,27 +16,27 @@ const firebaseConfig = {
     measurementId: "G-JDBQ306SJ5"
 };
 
-// InicializaÁ„o da Firebase
+// Inicializa√ß√£o da Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// ReferÍncias ‡s coleÁıes no Firestore
+// Refer√™ncias √†s cole√ß√µes no Firestore
 const productsCollection = collection(db, 'products');
 const ordersCollection = collection(db, 'orders');
 
 // =================================================================================
-// 2. POPULAR A BASE DE DADOS (FUN«√O)
+// 2. POPULAR A BASE DE DADOS (FUN√á√ÉO)
 // =================================================================================
 async function seedDatabaseIfNeeded() {
     const snapshot = await getDocs(productsCollection);
     if (snapshot.empty) {
         console.log("Base de dados de produtos vazia. A popular...");
         const initialProducts = [
-            { name: 'Cappuccino Gelado', description: 'A combinaÁ„o perfeita de cafÈ encorpado e leite cremoso, servido gelado para refrescar seu dia.', price: 14.90, imageUrl: 'https://placehold.co/400x400/664229/FFFFFF?text=Cappuccino', ingredients: [ { name: 'CafÈ expresso', quantity: '50' }, { name: 'Leite integral', quantity: '150' }, { name: 'Gelo', quantity: '100' }, { name: 'Calda de chocolate', quantity: '10' } ], nutritionalInfo: { calories: "150-200 kcal", protein: "6-8g", carbs: "18-22g", fat: "5-7g" } },
-            { name: 'Chocolate Cremoso', description: 'Um abraÁo em forma de bebida. Nosso chocolate cremoso gelado È denso, saboroso e inesquecÌvel.', price: 15.50, imageUrl: 'https://placehold.co/400x400/4a2c2a/FFFFFF?text=Chocolate', ingredients: [ { name: 'Chocolate em pÛ 50%', quantity: '30' }, { name: 'Leite integral', quantity: '200' }, { name: 'Creme de leite', quantity: '30' }, { name: 'AÁ˙car', quantity: '15' } ], nutritionalInfo: { calories: "300-350 kcal", protein: "8-10g", carbs: "35-40g", fat: "15-18g" } },
-            { name: 'Suco de Manga Tropical', description: 'Pura polpa de manga fresca, batida na hora para uma explos„o de sabor tropical e vitaminas.', price: 12.00, imageUrl: 'https://placehold.co/400x400/ffc107/FFFFFF?text=Manga', ingredients: [ { name: 'Polpa de manga', quantity: '200' }, { name: '¡gua', quantity: '150' }, { name: 'Gelo', quantity: '50' } ], nutritionalInfo: { calories: "120-140 kcal", protein: "1-2g", carbs: "30-35g", fat: "0-1g" } },
-            { name: 'Ch· de Hibisco & Gengibre', description: 'Uma bebida funcional e revigorante. O azedinho do hibisco com o toque picante do gengibre.', price: 13.50, imageUrl: 'https://placehold.co/400x400/c2185b/FFFFFF?text=Hibisco', ingredients: [ { name: 'Infus„o de hibisco', quantity: '250' }, { name: 'Gengibre fresco ralado', quantity: '10' }, { name: 'Lim„o espremido', quantity: '15' }, { name: 'Mel', quantity: '10' } ], nutritionalInfo: { calories: "40-60 kcal", protein: "0-1g", carbs: "10-15g", fat: "0g" } }
+            { name: 'Cappuccino Gelado', description: 'A combina√ß√£o perfeita de caf√© encorpado e leite cremoso, servido gelado para refrescar seu dia.', price: 14.90, imageUrl: 'https://placehold.co/400x400/664229/FFFFFF?text=Cappuccino', ingredients: [ { name: 'Caf√© expresso', quantity: '50' }, { name: 'Leite integral', quantity: '150' }, { name: 'Gelo', quantity: '100' }, { name: 'Calda de chocolate', quantity: '10' } ], nutritionalInfo: { calories: "150-200 kcal", protein: "6-8g", carbs: "18-22g", fat: "5-7g" } },
+            { name: 'Chocolate Cremoso', description: 'Um abra√ßo em forma de bebida. Nosso chocolate cremoso gelado √© denso, saboroso e inesquec√≠vel.', price: 15.50, imageUrl: 'https://placehold.co/400x400/4a2c2a/FFFFFF?text=Chocolate', ingredients: [ { name: 'Chocolate em p√≥ 50%', quantity: '30' }, { name: 'Leite integral', quantity: '200' }, { name: 'Creme de leite', quantity: '30' }, { name: 'A√ß√∫car', quantity: '15' } ], nutritionalInfo: { calories: "300-350 kcal", protein: "8-10g", carbs: "35-40g", fat: "15-18g" } },
+            { name: 'Suco de Manga Tropical', description: 'Pura polpa de manga fresca, batida na hora para uma explos√£o de sabor tropical e vitaminas.', price: 12.00, imageUrl: 'https://placehold.co/400x400/ffc107/FFFFFF?text=Manga', ingredients: [ { name: 'Polpa de manga', quantity: '200' }, { name: '√Ågua', quantity: '150' }, { name: 'Gelo', quantity: '50' } ], nutritionalInfo: { calories: "120-140 kcal", protein: "1-2g", carbs: "30-35g", fat: "0-1g" } },
+            { name: 'Ch√° de Hibisco & Gengibre', description: 'Uma bebida funcional e revigorante. O azedinho do hibisco com o toque picante do gengibre.', price: 13.50, imageUrl: 'https://placehold.co/400x400/c2185b/FFFFFF?text=Hibisco', ingredients: [ { name: 'Infus√£o de hibisco', quantity: '250' }, { name: 'Gengibre fresco ralado', quantity: '10' }, { name: 'Lim√£o espremido', quantity: '15' }, { name: 'Mel', quantity: '10' } ], nutritionalInfo: { calories: "40-60 kcal", protein: "0-1g", carbs: "10-15g", fat: "0g" } }
         ];
 
         for (const product of initialProducts) {
@@ -47,7 +47,7 @@ async function seedDatabaseIfNeeded() {
 }
 
 // =================================================================================
-// 3. ESTADO DA APLICA«√O
+// 3. ESTADO DA APLICA√á√ÉO
 // =================================================================================
 let localProducts = [];
 let localOrders = [];
@@ -57,7 +57,7 @@ const chatState = {
     currentStep: 'welcome',
     cart: [],
     address: '',
-    orderId: null // NOVO: Guarda o ID do pedido atual
+    orderId: null
 };
 
 // =================================================================================
@@ -70,12 +70,12 @@ async function getApiResponse(prompt) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ prompt })
         });
-        if (!response.ok) throw new Error(`Erro na funÁ„o Netlify: ${response.status}`);
+        if (!response.ok) throw new Error(`Erro na fun√ß√£o Netlify: ${response.status}`);
         const data = await response.json();
         return data.response;
     } catch (error) {
-        console.error('Erro ao chamar a funÁ„o Gemini da Netlify:', error);
-        return null;
+        console.error('Erro ao chamar a fun√ß√£o Gemini da Netlify:', error);
+        return "Desculpe, n√£o consegui processar a sua solicita√ß√£o no momento.";
     }
 }
 
@@ -93,13 +93,13 @@ async function getNutritionalInfo(ingredients) {
 
 async function getAdvancedChatAnswer(question) {
     const productNames = localProducts.map(p => p.name).join(', ');
-    const prompt = `VocÍ È um atendente virtual amig·vel para a 'CoolUp Drinks'. Responda ‡ pergunta do cliente de forma concisa. Nossos produtos s„o: ${productNames}. Se a pergunta for irrelevante, diga que sÛ pode ajudar com d˙vidas sobre a loja. Pergunta: "${question}"`;
-    return await getApiResponse(prompt) || "Desculpe, n„o consegui processar sua pergunta.";
+    const prompt = `Voc√™ √© um atendente virtual amig√°vel para a 'CoolUp Drinks'. Responda √† pergunta do cliente de forma concisa. Nossos produtos s√£o: ${productNames}. Se a pergunta for irrelevante, diga que s√≥ pode ajudar com d√∫vidas sobre a loja. Pergunta: "${question}"`;
+    return await getApiResponse(prompt);
 }
 
 
 // =================================================================================
-// 5. TEMPLATES E RENDERIZA«√O
+// 5. TEMPLATES E RENDERIZA√á√ÉO
 // =================================================================================
 const appContainer = document.getElementById('app');
 
@@ -108,7 +108,7 @@ const Header = () => `
         <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
             <a href="#" class="text-2xl font-bold text-indigo-600">CoolUp Drinks</a>
             <div class="flex items-center space-x-6">
-                <a href="#" class="text-slate-600 hover:text-indigo-600 transition">InÌcio</a>
+                <a href="#" class="text-slate-600 hover:text-indigo-600 transition">In√≠cio</a>
                 <a href="#products" class="text-slate-600 hover:text-indigo-600 transition">Produtos</a>
                 ${currentUser 
                     ? `<button data-action="logout" class="bg-red-100 text-red-700 px-4 py-2 rounded-lg hover:bg-red-200 transition text-sm font-semibold">Logout</button>`
@@ -122,7 +122,7 @@ const Header = () => `
 const ProductsSection = () => `
     <section id="products" class="bg-slate-100 py-20">
         <div class="container mx-auto px-6">
-            <h2 class="text-4xl font-bold text-center text-slate-900 mb-12">Nosso Card·pio</h2>
+            <h2 class="text-4xl font-bold text-center text-slate-900 mb-12">Nosso Card√°pio</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
                 ${localProducts.map(ProductCard).join('')}
             </div>
@@ -139,10 +139,10 @@ const ProductCard = (product) => `
             <div class="mt-4">
                 <h4 class="font-semibold text-sm text-slate-500">Info Nutricional (estimativa)</h4>
                 <div class="grid grid-cols-2 gap-2 text-sm mt-2 text-slate-700">
-                    <span>?? Calorias: <strong>${product.nutritionalInfo?.calories || 'N/A'}</strong></span>
-                    <span>?? ProteÌna: <strong>${product.nutritionalInfo?.protein || 'N/A'}</strong></span>
-                    <span>?? Carboidratos: <strong>${product.nutritionalInfo?.carbs || 'N/A'}</strong></span>
-                    <span>?? Gorduras: <strong>${product.nutritionalInfo?.fat || 'N/A'}</strong></span>
+                    <span>üî• Calorias: <strong>${product.nutritionalInfo?.calories || 'N/A'}</strong></span>
+                    <span>üí™ Prote√≠na: <strong>${product.nutritionalInfo?.protein || 'N/A'}</strong></span>
+                    <span>üçû Carboidratos: <strong>${product.nutritionalInfo?.carbs || 'N/A'}</strong></span>
+                    <span>ü•ë Gorduras: <strong>${product.nutritionalInfo?.fat || 'N/A'}</strong></span>
                 </div>
             </div>
             <div class="mt-6 flex justify-between items-center">
@@ -155,7 +155,7 @@ const ProductCard = (product) => `
 
 const Footer = () => `<footer class="bg-slate-900 text-slate-400 py-8"><div class="container mx-auto px-6 text-center"><p>&copy; ${new Date().getFullYear()} CoolUp Drinks. Todos os direitos reservados.</p></div></footer>`;
 
-const HeroSection = () => `<section class="container mx-auto px-6 py-24 text-center"><h1 class="text-5xl md:text-7xl font-extrabold text-slate-900 leading-tight">Seu gole de <span class="text-indigo-600">bem-estar</span>.</h1><p class="mt-6 text-lg text-slate-600 max-w-2xl mx-auto">Descubra sabores incrÌveis que refrescam seu corpo e sua mente.</p><a href="#products" class="mt-10 inline-block bg-indigo-600 text-white font-bold py-4 px-8 rounded-lg shadow-lg hover:bg-indigo-700 transition-transform transform hover:scale-105">ConheÁa Nossos Sabores!</a></section>`;
+const HeroSection = () => `<section class="container mx-auto px-6 py-24 text-center"><h1 class="text-5xl md:text-7xl font-extrabold text-slate-900 leading-tight">Seu gole de <span class="text-indigo-600">bem-estar</span>.</h1><p class="mt-6 text-lg text-slate-600 max-w-2xl mx-auto">Descubra sabores incr√≠veis que refrescam seu corpo e sua mente.</p><a href="#products" class="mt-10 inline-block bg-indigo-600 text-white font-bold py-4 px-8 rounded-lg shadow-lg hover:bg-indigo-700 transition-transform transform hover:scale-105">Conhe√ßa Nossos Sabores!</a></section>`;
 
 function renderPublicSite() {
     appContainer.innerHTML = `${Header()}<main>${HeroSection()}${ProductsSection()}</main>${Footer()}`;
@@ -184,32 +184,124 @@ function renderLogin() {
     `;
 }
 
+// =================================================================================
+// 5.1. ADMIN PANEL RENDERING (ATUALIZADO)
+// =================================================================================
 function renderAdminPanel(view = 'dashboard') {
-    const AdminSidebar = (activeView) => `<aside class="w-64 bg-slate-800 text-slate-300 p-6 flex-shrink-0"><h2 class="text-white text-2xl font-bold mb-10">Admin Panel</h2><nav class="space-y-2"><a href="#admin/dashboard" class="flex items-center px-4 py-2 rounded-lg ${activeView === 'dashboard' ? 'bg-slate-700 text-white' : 'hover:bg-slate-700'}">Dashboard</a><a href="#admin/products" class="flex items-center px-4 py-2 rounded-lg ${activeView === 'products' ? 'bg-slate-700 text-white' : 'hover:bg-slate-700'}">Produtos</a><a href="#admin/orders" class="flex items-center px-4 py-2 rounded-lg ${activeView === 'orders' ? 'bg-slate-700 text-white' : 'hover:bg-slate-700'}">Pedidos</a></nav><button data-action="logout" class="mt-10 w-full text-center text-sm text-slate-400 hover:text-white">Logout</button><a href="#" class="mt-4 block text-center text-sm text-slate-400 hover:text-white">Voltar ao Site</a></aside>`;
+    const AdminSidebar = (activeView) => `
+        <aside class="w-64 bg-slate-800 text-slate-300 p-6 flex-shrink-0 flex flex-col">
+            <h2 class="text-white text-2xl font-bold mb-10">CoolUp Brain</h2>
+            <nav class="space-y-2">
+                <a href="#admin/dashboard" class="flex items-center px-4 py-2 rounded-lg ${activeView === 'dashboard' ? 'bg-slate-700 text-white' : 'hover:bg-slate-700'}">Dashboard</a>
+                <a href="#admin/products" class="flex items-center px-4 py-2 rounded-lg ${activeView === 'products' ? 'bg-slate-700 text-white' : 'hover:bg-slate-700'}">Produtos</a>
+                <a href="#admin/orders" class="flex items-center px-4 py-2 rounded-lg ${activeView === 'orders' ? 'bg-slate-700 text-white' : 'hover:bg-slate-700'}">Pedidos</a>
+                <!-- NOVO: Link para a se√ß√£o de Marketing IA -->
+                <a href="#admin/marketing" class="flex items-center px-4 py-2 rounded-lg ${activeView === 'marketing' ? 'bg-slate-700 text-white' : 'hover:bg-slate-700'}">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path d="M11.984 1.529A.998.998 0 0011 1H9a1 1 0 00-.984.529L6.5 5H2v12h16V5h-4.5l-1.516-3.471zM10 15a4 4 0 110-8 4 4 0 010 8z" /><path d="M10 13a2 2 0 100-4 2 2 0 000 4z" /></svg>
+                    Marketing IA
+                </a>
+            </nav>
+            <div class="mt-auto">
+                <button data-action="logout" class="w-full text-center text-sm text-slate-400 hover:text-white mb-4">Logout</button>
+                <a href="#" class="block text-center text-sm text-slate-400 hover:text-white">Voltar ao Site</a>
+            </div>
+        </aside>`;
+    
     appContainer.innerHTML = `<div class="flex h-screen bg-slate-100">${AdminSidebar(view)}<main id="admin-content" class="flex-1 p-8 overflow-y-auto"></main></div>`;
     
     const adminContent = document.getElementById('admin-content');
-    if (view === 'products') {
-        adminContent.innerHTML = `
-            <div class="flex justify-between items-center mb-8"><h1 class="text-3xl font-bold text-slate-900">Gerenciar Produtos</h1><button data-action="add-product" class="bg-indigo-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-indigo-700 transition">+ Adicionar Sabor</button></div>
-            <div class="bg-white rounded-lg shadow overflow-hidden"><table class="w-full"><thead class="bg-slate-50"><tr><th class="p-4 text-left text-sm font-semibold text-slate-600">Produto</th><th class="p-4 text-left text-sm font-semibold text-slate-600">PreÁo</th><th class="p-4 text-left text-sm font-semibold text-slate-600">AÁıes</th></tr></thead><tbody class="divide-y divide-slate-200">${localProducts.map(p => `<tr><td class="p-4 flex items-center"><img src="${p.imageUrl}" class="w-12 h-12 rounded-md object-cover mr-4"><span class="font-medium text-slate-900">${p.name}</span></td><td class="p-4 text-slate-700">R$ ${p.price.toFixed(2).replace('.', ',')}</td><td class="p-4"><button data-action="edit-product" data-id="${p.id}" class="text-indigo-600 hover:text-indigo-900 mr-4">Editar</button><button data-action="delete-product" data-id="${p.id}" class="text-red-600 hover:text-red-900">Remover</button></td></tr>`).join('')}</tbody></table></div>`;
-    } else if (view === 'orders') {
-        adminContent.innerHTML = `<h1 class="text-3xl font-bold text-slate-900 mb-8">HistÛrico de Pedidos</h1><div class="bg-white rounded-lg shadow overflow-hidden"><table class="w-full"><thead class="bg-slate-50"><tr><th class="p-4 text-left text-sm font-semibold text-slate-600">ID Pedido</th><th class="p-4 text-left text-sm font-semibold text-slate-600">Itens</th><th class="p-4 text-left text-sm font-semibold text-slate-600">EndereÁo</th><th class="p-4 text-left text-sm font-semibold text-slate-600">Total</th><th class="p-4 text-left text-sm font-semibold text-slate-600">Status</th></tr></thead><tbody class="divide-y divide-slate-200">${localOrders.length === 0 ? `<tr><td colspan="5" class="p-4 text-center text-slate-500">Nenhum pedido encontrado.</td></tr>` : localOrders.map(o => `<tr><td class="p-4 font-mono text-sm text-slate-500">${o.id.substring(0,8)}...</td><td class="p-4 text-slate-700">${o.items.map(i => `${i.quantity}x ${i.name}`).join('<br>')}</td><td class="p-4 text-slate-700">${o.address}</td><td class="p-4 font-bold text-slate-900">R$ ${o.total.toFixed(2).replace('.', ',')}</td><td class="p-4 text-slate-700 capitalize">${o.status || 'Pendente'}</td></tr>`).join('')}</tbody></table></div>`;
-    } else {
-        const totalRevenue = localOrders.reduce((sum, order) => sum + (order.status === 'pago' ? order.total : 0), 0);
-        adminContent.innerHTML = `
-            <h1 class="text-3xl font-bold text-slate-900 mb-8">Dashboard</h1>
-            ${localProducts.length === 0 ? `<div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-6" role="alert"><p class="font-bold">A sua base de dados est· vazia!</p><p>Clique no bot„o abaixo para adicionar os sabores iniciais automaticamente.</p><button data-action="seed-database" class="mt-2 bg-indigo-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-indigo-700 transition">Popular Base de Dados</button></div>` : ''}
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="bg-white p-6 rounded-lg shadow"><h3 class="text-slate-500 text-sm font-medium">Sabores Ativos</h3><p class="text-3xl font-bold text-indigo-600 mt-2">${localProducts.length}</p></div>
-                <div class="bg-white p-6 rounded-lg shadow"><h3 class="text-slate-500 text-sm font-medium">Total de Pedidos</h3><p class="text-3xl font-bold text-green-600 mt-2">${localOrders.length}</p></div>
-                <div class="bg-white p-6 rounded-lg shadow"><h3 class="text-slate-500 text-sm font-medium">Receita (Aprovada)</h3><p class="text-3xl font-bold text-amber-600 mt-2">R$ ${totalRevenue.toFixed(2).replace('.', ',')}</p></div>
-            </div>`;
+    switch (view) {
+        case 'products':
+            renderAdminProducts(adminContent);
+            break;
+        case 'orders':
+            renderAdminOrders(adminContent);
+            break;
+        case 'marketing': // NOVO: Renderiza a tela de Marketing
+            renderAdminMarketing(adminContent);
+            break;
+        default:
+            renderAdminDashboard(adminContent);
+            break;
     }
 }
 
+function renderAdminDashboard(container) {
+    const totalRevenue = localOrders.reduce((sum, order) => sum + (order.status === 'pago' ? order.total : 0), 0);
+    container.innerHTML = `
+        <h1 class="text-3xl font-bold text-slate-900 mb-8">Dashboard</h1>
+        ${localProducts.length === 0 ? `<div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-6" role="alert"><p class="font-bold">A sua base de dados est√° vazia!</p><p>Clique no bot√£o abaixo para adicionar os sabores iniciais automaticamente.</p><button data-action="seed-database" class="mt-2 bg-indigo-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-indigo-700 transition">Popular Base de Dados</button></div>` : ''}
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="bg-white p-6 rounded-lg shadow"><h3 class="text-slate-500 text-sm font-medium">Sabores Ativos</h3><p class="text-3xl font-bold text-indigo-600 mt-2">${localProducts.length}</p></div>
+            <div class="bg-white p-6 rounded-lg shadow"><h3 class="text-slate-500 text-sm font-medium">Total de Pedidos</h3><p class="text-3xl font-bold text-green-600 mt-2">${localOrders.length}</p></div>
+            <div class="bg-white p-6 rounded-lg shadow"><h3 class="text-slate-500 text-sm font-medium">Receita (Aprovada)</h3><p class="text-3xl font-bold text-amber-600 mt-2">R$ ${totalRevenue.toFixed(2).replace('.', ',')}</p></div>
+        </div>`;
+}
+
+function renderAdminProducts(container) {
+    container.innerHTML = `
+        <div class="flex justify-between items-center mb-8"><h1 class="text-3xl font-bold text-slate-900">Gerenciar Produtos</h1><button data-action="add-product" class="bg-indigo-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-indigo-700 transition">+ Adicionar Sabor</button></div>
+        <div class="bg-white rounded-lg shadow overflow-hidden"><table class="w-full"><thead class="bg-slate-50"><tr><th class="p-4 text-left text-sm font-semibold text-slate-600">Produto</th><th class="p-4 text-left text-sm font-semibold text-slate-600">Pre√ßo</th><th class="p-4 text-left text-sm font-semibold text-slate-600">A√ß√µes</th></tr></thead><tbody class="divide-y divide-slate-200">${localProducts.map(p => `<tr><td class="p-4 flex items-center"><img src="${p.imageUrl}" class="w-12 h-12 rounded-md object-cover mr-4"><span class="font-medium text-slate-900">${p.name}</span></td><td class="p-4 text-slate-700">R$ ${p.price.toFixed(2).replace('.', ',')}</td><td class="p-4"><button data-action="edit-product" data-id="${p.id}" class="text-indigo-600 hover:text-indigo-900 mr-4">Editar</button><button data-action="delete-product" data-id="${p.id}" class="text-red-600 hover:text-red-900">Remover</button></td></tr>`).join('')}</tbody></table></div>`;
+}
+
+function renderAdminOrders(container) {
+    container.innerHTML = `<h1 class="text-3xl font-bold text-slate-900 mb-8">Hist√≥rico de Pedidos</h1><div class="bg-white rounded-lg shadow overflow-hidden"><table class="w-full"><thead class="bg-slate-50"><tr><th class="p-4 text-left text-sm font-semibold text-slate-600">ID Pedido</th><th class="p-4 text-left text-sm font-semibold text-slate-600">Itens</th><th class="p-4 text-left text-sm font-semibold text-slate-600">Endere√ßo</th><th class="p-4 text-left text-sm font-semibold text-slate-600">Total</th><th class="p-4 text-left text-sm font-semibold text-slate-600">Status</th></tr></thead><tbody class="divide-y divide-slate-200">${localOrders.length === 0 ? `<tr><td colspan="5" class="p-4 text-center text-slate-500">Nenhum pedido encontrado.</td></tr>` : localOrders.map(o => `<tr><td class="p-4 font-mono text-sm text-slate-500">${o.id.substring(0,8)}...</td><td class="p-4 text-slate-700">${o.items.map(i => `${i.quantity}x ${i.name}`).join('<br>')}</td><td class="p-4 text-slate-700">${o.address}</td><td class="p-4 font-bold text-slate-900">R$ ${o.total.toFixed(2).replace('.', ',')}</td><td class="p-4 text-slate-700 capitalize">${o.status || 'Pendente'}</td></tr>`).join('')}</tbody></table></div>`;
+}
+
 // =================================================================================
-// 6. L”GICA DE DADOS (FIRESTORE)
+// 5.2. NOVO PAINEL DE MARKETING IA
+// =================================================================================
+function renderAdminMarketing(container) {
+    container.innerHTML = `
+        <h1 class="text-3xl font-bold text-slate-900 mb-2">Assistente de Marketing IA</h1>
+        <p class="text-slate-600 mb-8">Gere conte√∫do criativo para suas redes sociais e mensagens com base nos seus produtos.</p>
+        
+        <div class="bg-white p-6 rounded-lg shadow">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Coluna de Sele√ß√£o -->
+                <div>
+                    <label for="product-select" class="block text-sm font-medium text-slate-700 mb-1">1. Escolha o Produto</label>
+                    <select id="product-select" class="w-full rounded-md border-slate-300 shadow-sm">
+                        <option value="">Selecione um produto...</option>
+                        ${localProducts.map(p => `<option value="${p.id}">${p.name}</option>`).join('')}
+                    </select>
+
+                    <label for="platform-select" class="block text-sm font-medium text-slate-700 mt-4 mb-1">2. Escolha a Plataforma</label>
+                    <select id="platform-select" class="w-full rounded-md border-slate-300 shadow-sm">
+                        <option value="instagram">Post para Instagram</option>
+                        <option value="facebook">Post para Facebook</option>
+                        <option value="whatsapp">Mensagem para WhatsApp</option>
+                    </select>
+
+                    <label for="tone-select" class="block text-sm font-medium text-slate-700 mt-4 mb-1">3. Escolha o Tom</label>
+                    <select id="tone-select" class="w-full rounded-md border-slate-300 shadow-sm">
+                        <option value="amigavel">Amig√°vel e Casual</option>
+                        <option value="divertido">Divertido e Engra√ßado</option>
+                        <option value="sofisticado">Sofisticado e Premium</option>
+                        <option value="informativo">Informativo e Saud√°vel</option>
+                    </select>
+                    
+                    <label for="custom-focus" class="block text-sm font-medium text-slate-700 mt-4 mb-1">4. Foco da Campanha (Opcional)</label>
+                    <input type="text" id="custom-focus" placeholder="Ex: Promo√ß√£o de Ver√£o, Dia das M√£es" class="w-full rounded-md border-slate-300 shadow-sm">
+
+                    <button id="generate-social-post" class="mt-6 w-full bg-indigo-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-indigo-700 transition">Gerar Conte√∫do</button>
+                </div>
+
+                <!-- Coluna de Resultado -->
+                <div class="bg-slate-50 p-4 rounded-lg">
+                    <h3 class="font-semibold text-slate-800 mb-2">Resultado Gerado:</h3>
+                    <div id="ai-result-container" class="prose prose-sm max-w-none h-64 overflow-y-auto bg-white p-3 rounded-md border border-slate-200 whitespace-pre-wrap">
+                        <span class="text-slate-400">O conte√∫do gerado pela IA aparecer√° aqui...</span>
+                    </div>
+                    <button id="copy-ai-result" class="mt-4 w-full bg-slate-200 text-slate-800 font-bold py-2 px-4 rounded-lg hover:bg-slate-300 transition hidden">Copiar Texto</button>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// =================================================================================
+// 6. L√ìGICA DE DADOS (FIRESTORE)
 // =================================================================================
 async function handleProductFormSubmit(e) {
     e.preventDefault();
@@ -249,14 +341,14 @@ async function handleProductFormSubmit(e) {
         closeModal();
     } catch (error) {
         console.error("Erro ao guardar produto:", error);
-        alert("N„o foi possÌvel guardar o produto.");
+        alert("N√£o foi poss√≠vel guardar o produto.");
         saveButton.disabled = false;
         saveButton.textContent = 'Guardar Produto';
     }
 }
 
 // =================================================================================
-// 7. ROUTER E AUTENTICA«√O
+// 7. ROUTER E AUTENTICA√á√ÉO
 // =================================================================================
 let unsubscribeOrders = null;
 let initialRenderDone = false; 
@@ -268,8 +360,7 @@ onAuthStateChanged(auth, user => {
             unsubscribeOrders = onSnapshot(ordersCollection, (snapshot) => {
                 localOrders = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 if (window.location.hash.startsWith('#admin')) {
-                    const view = window.location.hash.split('/')[1] || 'dashboard';
-                    renderAdminPanel(view);
+                    router();
                 }
             });
         }
@@ -292,12 +383,7 @@ onSnapshot(productsCollection, (snapshot) => {
         router();
         initialRenderDone = true;
     } else {
-        if (!window.location.hash.startsWith('#admin')) {
-            renderPublicSite();
-        } else if (currentUser) {
-            const view = window.location.hash.split('/')[1] || 'dashboard';
-            renderAdminPanel(view);
-        }
+       router();
     }
 });
 
@@ -316,7 +402,7 @@ function router() {
 }
 
 // =================================================================================
-// 8. EVENT LISTENERS
+// 8. EVENT LISTENERS (ATUALIZADO)
 // =================================================================================
 document.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -328,7 +414,7 @@ document.addEventListener('submit', async (e) => {
             await signInWithEmailAndPassword(auth, email, password);
             window.location.hash = '#admin';
         } catch (error) {
-            errorEl.textContent = "Email ou palavra-passe inv·lidos.";
+            errorEl.textContent = "Email ou palavra-passe inv√°lidos.";
             errorEl.classList.remove('hidden');
         }
     }
@@ -345,10 +431,13 @@ document.addEventListener('submit', async (e) => {
 });
 
 document.addEventListener('click', async (e) => {
-    const action = e.target.closest('[data-action]')?.dataset.action;
-    if (!action) return;
-    const id = e.target.closest('[data-action]')?.dataset.id;
+    const button = e.target.closest('button');
+    if (!button) return;
+
+    const action = button.dataset.action;
+    const id = button.dataset.id;
     
+    // A√ß√µes do Admin Geral
     if (action === 'logout') await signOut(auth);
     if (action === 'add-product') openModal();
     if (action === 'edit-product') openModal(id);
@@ -358,8 +447,8 @@ document.addEventListener('click', async (e) => {
         }
     }
     if (action === 'seed-database') {
-        e.target.textContent = 'A popular...';
-        e.target.disabled = true;
+        button.textContent = 'A popular...';
+        button.disabled = true;
         await seedDatabaseIfNeeded();
     }
     if (action === 'close-modal') closeModal();
@@ -372,13 +461,13 @@ document.addEventListener('click', async (e) => {
     }
     if (action === 'remove-ingredient') e.target.closest('.ingredient-item').remove();
     
-    // AÁıes do Chatbot
+    // A√ß√µes do Chatbot
     if (action === 'order-now') {
         toggleChatbot();
         if (chatState.currentStep !== 'selecting_products') { startChat(); showMenu(); }
     }
     if (action === 'chat-option') {
-        const value = e.target.closest('[data-action]').dataset.value;
+        const value = button.dataset.value;
         if (value === 'start_order') showMenu();
         if (value === 'continue_shopping') { addUserMessage('Adicionar mais itens'); addBotMessage('O que mais gostaria?'); showMenu(); }
         if (value === 'checkout') askForAddress();
@@ -386,12 +475,91 @@ document.addEventListener('click', async (e) => {
         if (value === 'restart') startChat();
     }
     if (action === 'add-to-cart') addToCart(id);
+
+    // =========================================================================
+    // NOVO: Listeners para as fun√ß√µes de IA do Admin
+    // =========================================================================
+    if (button.id === 'generate-description-ai') {
+        const form = document.getElementById('product-form');
+        const productName = form.name.value;
+        const ingredients = [];
+        document.querySelectorAll('.ingredient-item').forEach((item, index) => {
+            const name = form.querySelector(`[name="ingredient_name_${index}"]`).value;
+            if (name) ingredients.push(name);
+        });
+
+        if (!productName || ingredients.length === 0) {
+            alert('Por favor, preencha o nome e pelo menos um ingrediente para a IA criar a descri√ß√£o.');
+            return;
+        }
+        
+        button.textContent = 'A criar...';
+        button.disabled = true;
+        
+        const prompt = `Crie uma descri√ß√£o de produto curta (2-3 frases), apetitosa e convidativa para uma bebida chamada "${productName}". Os ingredientes principais s√£o: ${ingredients.join(', ')}. Foque nos sentimentos de frescor, sabor e bem-estar. N√£o inclua o pre√ßo.`;
+        const aiDescription = await getApiResponse(prompt);
+        
+        form.description.value = aiDescription;
+        button.textContent = 'Gerar com IA';
+        button.disabled = false;
+    }
+    
+    if (button.id === 'generate-social-post') {
+        const productId = document.getElementById('product-select').value;
+        const platform = document.getElementById('platform-select').value;
+        const tone = document.getElementById('tone-select').value;
+        const focus = document.getElementById('custom-focus').value;
+        const resultContainer = document.getElementById('ai-result-container');
+        const copyButton = document.getElementById('copy-ai-result');
+
+        if (!productId) {
+            resultContainer.innerHTML = '<span class="text-red-500">Por favor, selecione um produto primeiro.</span>';
+            return;
+        }
+
+        button.textContent = 'A gerar...';
+        button.disabled = true;
+        resultContainer.innerHTML = '<span class="text-slate-400">A IA est√° a pensar...</span>';
+        copyButton.classList.add('hidden');
+
+        const product = localProducts.find(p => p.id === productId);
+        const prompt = `Voc√™ √© um especialista em marketing de redes sociais para a marca 'CoolUp Drinks'. Crie um texto para um ${platform} sobre o nosso produto "${product.name}".
+        - Descri√ß√£o do produto: ${product.description}.
+        - O tom da comunica√ß√£o deve ser: ${tone}.
+        - ${focus ? `O foco da campanha √©: ${focus}.` : ''}
+        - O texto deve ser cativante, curto e direto.
+        - Se for para Instagram ou Facebook, inclua 3 a 5 hashtags relevantes no final.
+        - Se for para WhatsApp, use emojis e uma linguagem mais direta, talvez com uma pergunta para iniciar a conversa.`;
+
+        const aiResult = await getApiResponse(prompt);
+        resultContainer.textContent = aiResult;
+        copyButton.classList.remove('hidden');
+        button.textContent = 'Gerar Conte√∫do';
+        button.disabled = false;
+    }
+    
+    if (button.id === 'copy-ai-result') {
+        const textToCopy = document.getElementById('ai-result-container').textContent;
+        const textArea = document.createElement("textarea");
+        textArea.value = textToCopy;
+        document.body.appendChild(textArea);
+        textArea.select();
+        try {
+            document.execCommand('copy');
+            button.textContent = 'Copiado!';
+            setTimeout(() => button.textContent = 'Copiar Texto', 2000);
+        } catch (err) {
+            console.error('Falha ao copiar texto: ', err);
+            button.textContent = 'Erro ao copiar';
+        }
+        document.body.removeChild(textArea);
+    }
 });
 
 window.addEventListener('hashchange', router);
 
 // =================================================================================
-// 9. FUN«’ES DO MODAL
+// 9. FUN√á√ïES DO MODAL (ATUALIZADO COM BOT√ÉO DE IA)
 // =================================================================================
 const modalContainer = document.getElementById('admin-modal');
 const modalContent = document.getElementById('modal-content');
@@ -399,12 +567,45 @@ const modalContent = document.getElementById('modal-content');
 function openModal(productId = null) {
     const isEditing = productId !== null;
     const product = isEditing ? localProducts.find(p => p.id === productId) : { name: '', description: '', price: '', imageUrl: '', ingredients: [] };
-    modalContent.innerHTML = `<form id="product-form" class="p-8"><input type="hidden" name="id" value="${isEditing ? product.id : ''}"><div class="flex justify-between items-center mb-6"><h2 class="text-2xl font-bold text-slate-900">${isEditing ? 'Editar Sabor' : 'Adicionar Novo Sabor'}</h2><button type="button" data-action="close-modal" class="text-slate-400 hover:text-slate-600">&times;</button></div><div class="space-y-4"><div><label for="name" class="block text-sm font-medium text-slate-700">Nome</label><input type="text" name="name" required class="mt-1 block w-full rounded-md border-slate-300 shadow-sm" value="${product.name || ''}"></div><div><label for="description" class="block text-sm font-medium text-slate-700">DescriÁ„o</label><textarea name="description" rows="3" required class="mt-1 block w-full rounded-md border-slate-300 shadow-sm">${product.description || ''}</textarea></div><div class="grid grid-cols-2 gap-4"><div><label for="price">PreÁo</label><input type="number" name="price" step="0.01" required class="mt-1 block w-full rounded-md border-slate-300 shadow-sm" value="${product.price || ''}"></div><div><label for="imageUrl">URL da Imagem</label><input type="url" name="imageUrl" required class="mt-1 block w-full rounded-md border-slate-300 shadow-sm" value="${product.imageUrl || ''}"></div></div><div><h3 class="text-lg font-medium text-slate-900 mb-2">Ingredientes</h3><div id="ingredients-list" class="space-y-2">${(product.ingredients || []).map(renderIngredientInput).join('')}</div><button type="button" data-action="add-ingredient" class="mt-2 text-sm text-indigo-600 hover:text-indigo-800 font-semibold">+ Adicionar</button></div></div><div class="mt-8 flex justify-end"><button type="submit" id="save-product-button" class="bg-indigo-600 py-2 px-4 rounded-md text-white hover:bg-indigo-700">Guardar Produto</button></div></form>`;
+    modalContent.innerHTML = `
+        <form id="product-form" class="p-8">
+            <input type="hidden" name="id" value="${isEditing ? product.id : ''}">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-slate-900">${isEditing ? 'Editar Sabor' : 'Adicionar Novo Sabor'}</h2>
+                <button type="button" data-action="close-modal" class="text-slate-400 hover:text-slate-600 text-3xl leading-none">&times;</button>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label for="name" class="block text-sm font-medium text-slate-700">Nome</label>
+                    <input type="text" name="name" required class="mt-1 block w-full rounded-md border-slate-300 shadow-sm" value="${product.name || ''}">
+                </div>
+                <div>
+                    <div class="flex justify-between items-center">
+                        <label for="description" class="block text-sm font-medium text-slate-700">Descri√ß√£o</label>
+                        <!-- NOVO: Bot√£o para gerar descri√ß√£o com IA -->
+                        <button type="button" id="generate-description-ai" class="text-xs bg-indigo-100 text-indigo-700 font-semibold px-2 py-1 rounded-md hover:bg-indigo-200">Gerar com IA</button>
+                    </div>
+                    <textarea name="description" rows="3" required class="mt-1 block w-full rounded-md border-slate-300 shadow-sm">${product.description || ''}</textarea>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div><label for="price">Pre√ßo</label><input type="number" name="price" step="0.01" required class="mt-1 block w-full rounded-md border-slate-300 shadow-sm" value="${product.price || ''}"></div>
+                    <div><label for="imageUrl">URL da Imagem</label><input type="url" name="imageUrl" required class="mt-1 block w-full rounded-md border-slate-300 shadow-sm" value="${product.imageUrl || ''}"></div>
+                </div>
+                <div>
+                    <h3 class="text-lg font-medium text-slate-900 mb-2">Ingredientes</h3>
+                    <div id="ingredients-list" class="space-y-2">${(product.ingredients || []).map(renderIngredientInput).join('')}</div>
+                    <button type="button" data-action="add-ingredient" class="mt-2 text-sm text-indigo-600 hover:text-indigo-800 font-semibold">+ Adicionar</button>
+                </div>
+            </div>
+            <div class="mt-8 flex justify-end">
+                <button type="submit" id="save-product-button" class="bg-indigo-600 py-2 px-4 rounded-md text-white hover:bg-indigo-700">Guardar Produto</button>
+            </div>
+        </form>`;
     modalContainer.classList.remove('hidden');
 }
 
 function renderIngredientInput(ingredient, index) { 
-    return `<div class="ingredient-item flex items-center gap-2"><input type="text" name="ingredient_name_${index}" placeholder="Nome" required class="flex-grow rounded-md border-slate-300 shadow-sm text-sm" value="${ingredient.name || ''}"><input type="number" name="ingredient_quantity_${index}" placeholder="Qtd (g)" required class="w-24 rounded-md border-slate-300 shadow-sm text-sm" value="${ingredient.quantity || ''}"><button type="button" data-action="remove-ingredient" class="text-red-500 hover:text-red-700 p-1 rounded-full">&times;</button></div>`; 
+    return `<div class="ingredient-item flex items-center gap-2"><input type="text" name="ingredient_name_${index}" placeholder="Nome" required class="flex-grow rounded-md border-slate-300 shadow-sm text-sm" value="${ingredient.name || ''}"><input type="number" name="ingredient_quantity_${index}" placeholder="Qtd (g/ml)" required class="w-24 rounded-md border-slate-300 shadow-sm text-sm" value="${ingredient.quantity || ''}"><button type="button" data-action="remove-ingredient" class="text-red-500 hover:text-red-700 p-1 rounded-full text-xl leading-none">&times;</button></div>`; 
 }
 
 function closeModal() { 
@@ -413,7 +614,7 @@ function closeModal() {
 }
 
 // =================================================================================
-// 10. FUN«’ES DO CHATBOT (com fluxo de pagamento corrigido)
+// 10. FUN√á√ïES DO CHATBOT (sem altera√ß√µes)
 // =================================================================================
 const chatbotWindow = document.getElementById('chatbot-window');
 const chatbotToggleButton = document.getElementById('chatbot-toggle-button');
@@ -453,35 +654,35 @@ async function handleTextInput(question) {
     addUserMessage(question); 
     const lower = question.toLowerCase(); 
     let answer; 
-    if (lower.includes('pagamento')) answer = "Aceitamos cartıes e Pix atravÈs do Mercado Pago."; 
-    else if (lower.includes('hor·rio')) answer = "Funcionamos das 10h ‡s 22h."; 
-    else if (lower.includes('entrega')) answer = "A taxa de frete È R$ 5,00."; 
+    if (lower.includes('pagamento')) answer = "Aceitamos cart√µes e Pix atrav√©s do Mercado Pago."; 
+    else if (lower.includes('hor√°rio')) answer = "Funcionamos das 10h √†s 22h."; 
+    else if (lower.includes('entrega')) answer = "A taxa de frete √© R$ 5,00."; 
     if (answer) { 
         addBotMessage(answer); 
     } else { 
-        addBotMessage("A pensar... ??"); 
+        addBotMessage("A pensar... ü§î"); 
         const aiAnswer = await getAdvancedChatAnswer(question); 
         chatbotMessages.removeChild(chatbotMessages.lastChild); 
         addBotMessage(aiAnswer); 
     } 
-    renderChatInterface([{ label: 'Ver Card·pio & Fazer Pedido', value: 'start_order' }]); 
+    renderChatInterface([{ label: 'Ver Card√°pio & Fazer Pedido', value: 'start_order' }]); 
 }
 
 function startChat() { 
     chatbotMessages.innerHTML = ''; 
     chatState.cart = []; 
     chatState.address = ''; 
-    chatState.orderId = null; // Limpa o ID do pedido
+    chatState.orderId = null; 
     chatState.currentStep = 'welcome'; 
-    addBotMessage('Ol·! ?? Como posso ajudar?'); 
-    renderChatInterface([{ label: 'Ver Card·pio & Fazer Pedido', value: 'start_order' }]); 
+    addBotMessage('Ol√°! üëã Como posso ajudar?'); 
+    renderChatInterface([{ label: 'Ver Card√°pio & Fazer Pedido', value: 'start_order' }]); 
 }
 
 function showMenu() { 
     chatState.currentStep = 'selecting_products'; 
-    addUserMessage('Ver Card·pio'); 
+    addUserMessage('Ver Card√°pio'); 
     const list = localProducts.map(p => `<li class="flex justify-between items-center py-2"><span>${p.name} - R$ ${p.price.toFixed(2).replace('.',',')}</span><button data-action="add-to-cart" data-id="${p.id}" class="text-sm bg-indigo-100 text-indigo-700 px-2 py-1 rounded-md hover:bg-indigo-200">+ Add</button></li>`).join(''); 
-    addBotMessage(`<p class="font-semibold mb-2">Nosso card·pio:</p><ul class="list-none divide-y divide-slate-200">${list}</ul>`); 
+    addBotMessage(`<p class="font-semibold mb-2">Nosso card√°pio:</p><ul class="list-none divide-y divide-slate-200">${list}</ul>`); 
     updateCartView(); 
 }
 
@@ -492,7 +693,7 @@ function updateCartView() {
         addBotMessage(`<p class="font-semibold">Seu carrinho:</p><p>${summary}</p><p class="mt-2 font-bold">Subtotal: R$ ${subtotal.toFixed(2).replace('.',',')}</p>`); 
         renderChatInterface([{ label: 'Adicionar mais itens', value: 'continue_shopping' }, { label: 'Finalizar Pedido', value: 'checkout' }]); 
     } else { 
-        renderChatInterface([{ label: 'Ver Card·pio & Fazer Pedido', value: 'start_order' }]); 
+        renderChatInterface([{ label: 'Ver Card√°pio & Fazer Pedido', value: 'start_order' }]); 
     } 
 }
 
@@ -508,7 +709,7 @@ function addToCart(productId) {
 function askForAddress() { 
     chatState.currentStep = 'entering_address'; 
     addUserMessage('Finalizar Pedido'); 
-    addBotMessage('Para finalizar, digite seu endereÁo completo.'); 
+    addBotMessage('Para finalizar, digite seu endere√ßo completo.'); 
     chatbotInputArea.innerHTML = `<form id="address-form" class="flex gap-2"><input type="text" id="address-input" placeholder="Ex: Rua das Flores, 123" required class="flex-grow rounded-md border-slate-300"><button type="submit" class="bg-indigo-600 text-white font-bold py-2 px-4 rounded-lg">Enviar</button></form>`; 
 }
 
@@ -522,21 +723,19 @@ async function showFinalSummary(address) {
     const total = subtotal + frete;
     const items = chatState.cart.map(item => `<li>${item.quantity}x ${item.name}</li>`).join('');
 
-    addBotMessage(`<p class="font-semibold">Resumo:</p><ul>${items}</ul><p><strong>EndereÁo:</strong> ${address}</p><p><strong>Total:</strong> R$ ${total.toFixed(2).replace('.',',')}</p>`);
+    addBotMessage(`<p class="font-semibold">Resumo:</p><ul>${items}</ul><p><strong>Endere√ßo:</strong> ${address}</p><p><strong>Total:</strong> R$ ${total.toFixed(2).replace('.',',')}</p>`);
     
-    // **CORRE«√O: Guarda o pedido na base de dados ANTES de mostrar o bot„o de pagar**
     try {
         const orderData = { 
-            items: chatState.cart.map(({id, name, price, quantity}) => ({id, name, price, quantity})), // Salva uma vers„o limpa dos itens
+            items: chatState.cart.map(({id, name, price, quantity}) => ({id, name, price, quantity})),
             address: chatState.address, 
             total: total, 
             createdAt: new Date(),
             status: 'pending'
         };
         const docRef = await addDoc(ordersCollection, orderData);
-        chatState.orderId = docRef.id; // **CORRE«√O: Armazena o ID do novo pedido**
+        chatState.orderId = docRef.id;
         
-        // Agora mostra o bot„o para pagar
         renderChatInterface([{ label: 'Pagar com Mercado Pago', value: 'pay' }]);
 
     } catch (error) {
@@ -547,9 +746,8 @@ async function showFinalSummary(address) {
 }
 
 async function showPaymentLink() {
-    // **CORRE«√O: Verifica se temos um ID de pedido para processar**
     if (!chatState.orderId) {
-        addBotMessage("Ocorreu um erro. N„o foi possÌvel identificar o seu pedido para o pagamento.");
+        addBotMessage("Ocorreu um erro. N√£o foi poss√≠vel identificar o seu pedido para o pagamento.");
         return;
     }
     
@@ -557,7 +755,6 @@ async function showPaymentLink() {
     addBotMessage('A gerar o seu link de pagamento seguro. Aguarde um momento...');
     
     try {
-        // **CORRE«√O: Envia o ID do pedido para a funÁ„o Netlify**
         const response = await fetch('/.netlify/functions/create-payment', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -572,7 +769,7 @@ async function showPaymentLink() {
         const paymentUrl = data.init_point;
 
         chatbotMessages.removeChild(chatbotMessages.lastChild);
-        addBotMessage(`Pedido confirmado! ??<p>Clique no bot„o abaixo para concluir o pagamento de forma segura.</p><a href="${paymentUrl}" target="_blank" class="block text-center mt-2 bg-blue-500 text-white font-bold py-2 px-4 rounded-lg">Pagar Agora</a>`);
+        addBotMessage(`Pedido confirmado! üéâ<p>Clique no bot√£o abaixo para concluir o pagamento de forma segura.</p><a href="${paymentUrl}" target="_blank" class="block text-center mt-2 bg-blue-500 text-white font-bold py-2 px-4 rounded-lg">Pagar Agora</a>`);
         chatState.currentStep = 'finished';
         renderChatInterface([{ label: 'Iniciar Novo Pedido', value: 'restart' }]);
 
@@ -587,5 +784,5 @@ async function showPaymentLink() {
 chatbotToggleButton.addEventListener('click', toggleChatbot);
 chatbotCloseButton.addEventListener('click', toggleChatbot);
 
-// Inicia a aplicaÁ„o
+// Inicia a aplica√ß√£o
 router();
