@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CoolUp Drinks - Seu gole de bem-estar</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="antialiased text-slate-800">
+
+    <div id="app">
+        <div class="flex justify-center items-center h-screen">
+            <p class="text-lg text-slate-500">A carregar CoolUp Drinks...</p>
+        </div>
+    </div>
+
+    <div id="chatbot-container" class="fixed bottom-5 right-5 z-40">
+        <button id="chatbot-toggle-button" class="bg-indigo-600 text-white rounded-full p-4 shadow-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-transform transform hover:scale-110">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8"><path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 0 1-2.555-.337A5.972 5.972 0 0 1 5.41 20.97a5.969 5.969 0 0 1-.474-.065 4.48 4.48 0 0 0 .978-2.025c.09-.455.09-.934.09-1.425v-2.909c0-.909.737-1.646 1.646-1.646h4.54c.909 0 1.646.737 1.646 1.646v2.909c0 .533.078 1.06.237 1.562a.64.64 0 0 1-.623.692h-2.433a.64.64 0 0 0-.64.64v.828c0 .353.287.64.64.64h3.934a.64.64 0 0 0 .64-.64v-.032c0-.482-.168-.954-.474-1.354a6.733 6.733 0 0 0-1.262-1.437A9.764 9.764 0 0 0 21 12Z" /></svg>
+        </button>
+        <div id="chatbot-window" class="hidden fixed bottom-24 right-5 w-full max-w-sm h-[70vh] max-h-[600px] bg-white rounded-2xl shadow-2xl flex flex-col chat-slide-in">
+            <div class="bg-indigo-600 text-white p-4 rounded-t-2xl flex justify-between items-center"><h3 class="font-bold text-lg">CoolUp Atendente Virtual</h3><button id="chatbot-close-button" class="text-white hover:bg-indigo-500 rounded-full p-1"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" /></svg></button></div>
+            <div id="chatbot-messages" class="flex-1 p-4 overflow-y-auto chatbot-messages"></div>
+            <div id="chatbot-input-area" class="p-4 border-t border-slate-200"></div>
+        </div>
+    </div>
+
+    <div id="admin-modal" class="hidden fixed inset-0 bg-black bg-opacity-60 z-50 flex justify-center items-center p-4">
+        <div id="modal-content" class="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto"></div>
+    </div>
+
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>

@@ -1,4 +1,3 @@
-// Ficheiro: netlify/functions/get-gemini-response.js
 const fetch = require('node-fetch');
 
 exports.handler = async (event) => {
