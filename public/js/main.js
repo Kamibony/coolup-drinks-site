@@ -61,7 +61,7 @@ const chatState = {
 };
 
 // =================================================================================
-// 4. GEMINI AI INTEGRATION
+// 4. GEMINI AI INTEGRATION (ATUALIZADO COM MELHOR ERROR HANDLING)
 // =================================================================================
 async function getApiResponse(prompt) {
     try {
@@ -70,12 +70,22 @@ async function getApiResponse(prompt) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ prompt })
         });
-        if (!response.ok) throw new Error(`Erro na função Netlify: ${response.status}`);
+        
         const data = await response.json();
+
+        // Se a resposta da função Netlify não for OK (ex: status 500),
+        // o erro virá no 'data.error'.
+        if (!response.ok) {
+            // Lança um erro com a mensagem específica vinda do backend
+            throw new Error(data.error || 'Erro desconhecido no servidor.');
+        }
+
         return data.response;
+
     } catch (error) {
         console.error('Erro ao chamar a função Gemini da Netlify:', error);
-        return "Desculpe, não consegui processar a sua solicitação no momento.";
+        // Retorna a mensagem de erro específica para ser exibida
+        return `ERRO: ${error.message}`;
     }
 }
 
@@ -83,7 +93,13 @@ async function getNutritionalInfo(ingredients) {
     const ingredientList = ingredients.map(i => `${i.name} (${i.quantity}g)`).join(', ');
     const prompt = `Analise a seguinte lista de ingredientes para uma bebida: ${ingredientList}. Retorne sua resposta como um objeto JSON, e APENAS o objeto JSON, com as seguintes chaves: "calories", "protein", "carbs", "fat".`;
     const jsonString = await getApiResponse(prompt);
-    if (!jsonString) return { calories: "N/A", protein: "N/A", carbs: "N/A", fat: "N/A" };
+    
+    // Verifica se a resposta foi um erro
+    if (jsonString.startsWith('ERRO:')) {
+        alert(jsonString); // Mostra o erro para o admin
+        return { calories: "Erro", protein: "Erro", carbs: "Erro", fat: "Erro" };
+    }
+
     try {
         return JSON.parse(jsonString.replace(/```json\n|\n```/g, '').trim());
     } catch {
@@ -234,7 +250,7 @@ function renderAdminDashboard(container) {
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div class="bg-white p-6 rounded-lg shadow"><h3 class="text-slate-500 text-sm font-medium">Sabores Ativos</h3><p class="text-3xl font-bold text-indigo-600 mt-2">${localProducts.length}</p></div>
             <div class="bg-white p-6 rounded-lg shadow"><h3 class="text-slate-500 text-sm font-medium">Total de Pedidos</h3><p class="text-3xl font-bold text-green-600 mt-2">${localOrders.length}</p></div>
-            <div class="bg-white p-6 rounded-lg shadow"><h3 class="text-slate-500 text-sm font-medium">Receita (Aprovada)</h3><p class="text-3xl font-bold text-amber-600 mt-2">R$ ${totalRevenue.toFixed(2).replace('.', ',')}</p></div>
+            <div class="bg-white p-6 rounded-lg shadow"><h3 class="text-slate-500 text-sm font-medium">Receita (Aprovada)</h3><p class="text-3xl font-bold text-amber-600 mt-2">R$ ${totalRevenue.toFixed(2).replace('.', ',')}</h6>
         </div>`;
 }
 
@@ -499,7 +515,14 @@ document.addEventListener('click', async (e) => {
         const prompt = `Crie uma descrição de produto curta (2-3 frases), apetitosa e convidativa para uma bebida chamada "${productName}". Os ingredientes principais são: ${ingredients.join(', ')}. Foque nos sentimentos de frescor, sabor e bem-estar. Não inclua o preço.`;
         const aiDescription = await getApiResponse(prompt);
         
-        form.description.value = aiDescription;
+        // ATUALIZADO: Verifica se a resposta é um erro antes de preencher
+        if (aiDescription.startsWith('ERRO:')) {
+            form.description.value = ''; // Limpa o campo
+            alert(aiDescription); // Mostra o erro detalhado
+        } else {
+            form.description.value = aiDescription;
+        }
+        
         button.textContent = 'Gerar com IA';
         button.disabled = false;
     }
@@ -532,8 +555,15 @@ document.addEventListener('click', async (e) => {
         - Se for para WhatsApp, use emojis e uma linguagem mais direta, talvez com uma pergunta para iniciar a conversa.`;
 
         const aiResult = await getApiResponse(prompt);
-        resultContainer.textContent = aiResult;
-        copyButton.classList.remove('hidden');
+
+        // ATUALIZADO: Verifica se a resposta é um erro antes de exibir
+        if (aiResult.startsWith('ERRO:')) {
+            resultContainer.innerHTML = `<span class="text-red-500">${aiResult}</span>`;
+        } else {
+            resultContainer.textContent = aiResult;
+            copyButton.classList.remove('hidden');
+        }
+
         button.textContent = 'Gerar Conteúdo';
         button.disabled = false;
     }
