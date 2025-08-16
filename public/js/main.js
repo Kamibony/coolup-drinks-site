@@ -4,6 +4,23 @@ import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from
 import { getFirestore, collection, onSnapshot, doc, addDoc, setDoc, deleteDoc, getDocs, updateDoc, query, where, writeBatch, serverTimestamp, arrayUnion } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
 
 // =================================================================================
+// 0. FUNÇÃO PARA CARREGAR SCRIPTS EXTERNOS
+// =================================================================================
+function loadScript(url) {
+    return new Promise((resolve, reject) => {
+        if (document.querySelector(`script[src="${url}"]`)) {
+            resolve();
+            return;
+        }
+        const script = document.createElement('script');
+        script.src = url;
+        script.onload = resolve;
+        script.onerror = reject;
+        document.head.appendChild(script);
+    });
+}
+
+// =================================================================================
 // 1. CONFIGURAÇÃO DA FIREBASE
 // =================================================================================
 const firebaseConfig = {
@@ -99,6 +116,16 @@ document.addEventListener('click', async (e) => {
         case 'order-now': toggleChatbot(); if (chatState.currentStep !== 'selecting_products') { startChat(); showMenu(); } break;
         case 'add-to-cart': addToCart(id); break;
         case 'chat-option': handleChatOption(button.dataset.value); break;
+        case 'close-modal': closeModal(); break;
+        case 'add-ingredient': {
+            const list = document.getElementById('ingredients-list');
+            const newIndex = list.children.length;
+            const newIngredientEl = document.createElement('div');
+            newIngredientEl.innerHTML = renderIngredientInput({ name: '', quantity: '' }, newIndex);
+            list.appendChild(newIngredientEl.firstElementChild);
+            break;
+        }
+        case 'remove-ingredient': e.target.closest('.ingredient-item').remove(); break;
     }
 });
 
@@ -193,6 +220,29 @@ function openModal(productId = null) {
             <div class="mt-8 flex justify-end"><button type="submit" id="save-product-button" class="bg-indigo-600 py-2 px-4 rounded-md text-white hover:bg-indigo-700">Guardar Produto</button></div>
         </form>`;
     modalContainer.classList.remove('hidden');
+    
+    // Adicionar listener para o botão de gerar descrição com IA
+    modalContent.querySelector('#generate-description-ai').addEventListener('click', async (e) => {
+        const button = e.target;
+        const form = document.getElementById('product-form');
+        const productName = form.name.value;
+        const ingredients = [];
+        document.querySelectorAll('.ingredient-item input[name^="ingredient_name_"]').forEach(input => {
+            if (input.value) ingredients.push(input.value);
+        });
+        if (!productName || ingredients.length === 0) {
+            alert('Por favor, preencha o nome e pelo menos um ingrediente.');
+            return;
+        }
+        button.textContent = 'A criar...';
+        button.disabled = true;
+        const prompt = `Crie uma descrição de produto curta (2-3 frases), apetitosa e convidativa para uma bebida chamada "${productName}". Os ingredientes principais são: ${ingredients.join(', ')}. Foque nos sentimentos de frescor, sabor e bem-estar. Não inclua o preço.`;
+        const aiDescription = await getApiResponse(prompt);
+        form.description.value = aiDescription.startsWith('ERRO:') ? '' : aiDescription;
+        if(aiDescription.startsWith('ERRO:')) alert(aiDescription);
+        button.textContent = 'Gerar com IA';
+        button.disabled = false;
+    });
 }
 function renderIngredientInput(ingredient, index) { return `<div class="ingredient-item flex items-center gap-2"><input type="text" name="ingredient_name_${index}" placeholder="Nome" required class="flex-grow rounded-md border-slate-300 shadow-sm text-sm" value="${ingredient.name || ''}"><input type="number" name="ingredient_quantity_${index}" placeholder="Qtd (g/ml)" required class="w-24 rounded-md border-slate-300 shadow-sm text-sm" value="${ingredient.quantity || ''}"><button type="button" data-action="remove-ingredient" class="text-red-500 hover:text-red-700 p-1 rounded-full text-xl leading-none">&times;</button></div>`; }
 function closeModal() { modalContainer.classList.add('hidden'); modalContent.innerHTML = ''; }
