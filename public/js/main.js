@@ -149,7 +149,37 @@ async function askForAddress() {
     const cepInput = document.getElementById('address-cep');
     cepInput.addEventListener('input', handleCepInput);
 }
-async function handleCepInput(e) { const cep = e.target.value.replace(/\D/g, ''); if (cep.length === 8) { try { const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`); const data = await response.json(); if (data.erro) { throw new Error('CEP não encontrado.'); } document.querySelector('[name="street"]').value = data.logradouro; document.querySelector('[name="neighborhood"]').value = data.bairro; document.querySelector('[name="city"]').value = data.localidade; document.querySelector('[name="state"]').value = data.uf; document.getElementById('address-fields').classList.remove('hidden'); document.getElementById('cep-error').classList.add('hidden'); } catch (error) { document.getElementById('address-fields').classList.add('hidden'); document.getElementById('cep-error').textContent = error.message; document.getElementById('cep-error').classList.remove('hidden'); } } }
+async function handleCepInput(e) {
+    const cepInput = e.target;
+    const cep = cepInput.value.replace(/\D/g, '');
+    const errorEl = document.getElementById('cep-error');
+    const fieldsContainer = document.getElementById('address-fields');
+
+    if (cep.length === 8) {
+        try {
+            const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+            const data = await response.json();
+            if (data.erro) {
+                throw new Error('CEP não encontrado.');
+            }
+            document.querySelector('[name="street"]').value = data.logradouro;
+            document.querySelector('[name="neighborhood"]').value = data.bairro;
+            document.querySelector('[name="city"]').value = data.localidade;
+            document.querySelector('[name="state"]').value = data.uf;
+            fieldsContainer.classList.remove('hidden');
+            errorEl.classList.add('hidden');
+        } catch (error) {
+            fieldsContainer.classList.add('hidden');
+            errorEl.textContent = error.message + " Por favor, tente novamente.";
+            errorEl.classList.remove('hidden');
+            // CORREÇÃO: Limpa o campo para permitir nova digitação
+            setTimeout(() => {
+                cepInput.value = '';
+                cepInput.focus();
+            }, 100);
+        }
+    }
+}
 async function showFinalSummary() {
     chatState.currentStep = 'payment';
     const subtotal = chatState.cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
@@ -160,13 +190,10 @@ async function showFinalSummary() {
     addBotMessage(`<p class="font-semibold">Perfeito! Revise seu pedido:</p><ul>${items}</ul><p><strong>Cliente:</strong> ${chatState.customer.name}</p><p><strong>Endereço:</strong> ${chatState.address.street}, ${chatState.address.number}</p><p class="font-bold mt-2">Total: R$ ${total.toFixed(2).replace('.',',')}</p>`);
     
     try {
-        // Lógica de Cliente (Criar ou Atualizar)
         const customerId = await handleCustomerUpsert(total);
-
-        // Criar o Pedido
         const orderData = { 
             items: chatState.cart.map(({id, name, price, quantity}) => ({id, name, price, quantity})), 
-            customer: { ...chatState.customer, id: customerId }, // Adiciona ID do cliente ao pedido
+            customer: { ...chatState.customer, id: customerId },
             address: chatState.address, 
             total: total, 
             createdAt: serverTimestamp(), 
@@ -175,7 +202,6 @@ async function showFinalSummary() {
         const docRef = await addDoc(ordersCollection, orderData);
         chatState.orderId = docRef.id;
         
-        // Atualiza o cliente com o novo ID de pedido
         const customerDocRef = doc(db, 'customers', customerId);
         await updateDoc(customerDocRef, { orderIds: arrayUnion(chatState.orderId) });
 
@@ -192,7 +218,6 @@ async function handleCustomerUpsert(orderTotal) {
     const querySnapshot = await getDocs(q);
 
     if (querySnapshot.empty) {
-        // Cliente Novo
         const newCustomerData = {
             name: chatState.customer.name,
             phone: phone,
@@ -204,7 +229,6 @@ async function handleCustomerUpsert(orderTotal) {
         const docRef = await addDoc(customersCollection, newCustomerData);
         return docRef.id;
     } else {
-        // Cliente Recorrente
         const customerDoc = querySnapshot.docs[0];
         const customerData = customerDoc.data();
         const batch = writeBatch(db);
