@@ -152,7 +152,6 @@ onAuthStateChanged(auth, user => { currentUser = user; if (user) { if (!unsubscr
 onSnapshot(productsCollection, (snapshot) => { localProducts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })); if (!initialRenderDone) { router(); initialRenderDone = true; } else { router(); } });
 function router() { const hash = window.location.hash; if (hash.startsWith('#admin')) { if (currentUser) { const view = hash.split('/')[1] || 'dashboard'; renderAdminPanel(view); } else { renderLogin(); } } else { renderPublicSite(); } }
 
-// CORREÇÃO: Listener de eventos de submissão de formulário
 document.addEventListener('submit', async (e) => {
     const formId = e.target.id;
     if (formId === 'login-form' || formId === 'chat-input-form' || formId === 'customer-form' || formId === 'address-form') {
