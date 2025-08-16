@@ -2,6 +2,8 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
 import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
 import { getFirestore, collection, onSnapshot, doc, addDoc, setDoc, deleteDoc, getDocs, updateDoc, query, where, writeBatch, serverTimestamp, arrayUnion } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-storage.js";
+
 
 // =================================================================================
 // 0. FUNÇÃO PARA CARREGAR SCRIPTS EXTERNOS
@@ -36,6 +38,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+const storage = getStorage(app);
 const productsCollection = collection(db, 'products');
 const ordersCollection = collection(db, 'orders');
 const customersCollection = collection(db, 'customers');
@@ -81,81 +84,25 @@ function renderPublicSite() { appContainer.innerHTML = `${Header()}<main>${HeroS
 function renderLogin() { appContainer.innerHTML = `<div class="flex items-center justify-center min-h-screen bg-slate-100"><div class="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-md"><h2 class="text-2xl font-bold text-center text-slate-900">Acesso Administrativo</h2><form id="login-form" class="space-y-6"><div><label for="email" class="text-sm font-medium text-slate-700">Email</label><input id="email" name="email" type="email" required class="w-full px-3 py-2 mt-1 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"></div><div><label for="password" class="text-sm font-medium text-slate-700">Palavra-passe</label><input id="password" name="password" type="password" required class="w-full px-3 py-2 mt-1 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"></div><p id="login-error" class="text-sm text-red-600 hidden"></p><button type="submit" class="w-full py-2 px-4 font-semibold text-white bg-indigo-600 rounded-md hover:bg-indigo-700">Entrar</button></form><a href="#" class="block text-center text-sm text-indigo-600 hover:underline">Voltar ao site</a></div></div>`; }
 
 // ADMIN PANEL RENDERING
-function renderAdminPanel(view = 'dashboard') { const AdminSidebar = (activeView) => `<aside class="w-64 bg-slate-800 text-slate-300 p-6 flex-shrink-0 flex flex-col"><h2 class="text-white text-2xl font-bold mb-10">CoolUp Brain</h2><nav class="space-y-2"><a href="#admin/dashboard" class="flex items-center px-4 py-2 rounded-lg ${activeView === 'dashboard' ? 'bg-slate-700 text-white' : 'hover:bg-slate-700'}">Dashboard</a><a href="#admin/products" class="flex items-center px-4 py-2 rounded-lg ${activeView === 'products' ? 'bg-slate-700 text-white' : 'hover:bg-slate-700'}">Produtos</a><a href="#admin/customers" class="flex items-center px-4 py-2 rounded-lg ${activeView === 'customers' ? 'bg-slate-700 text-white' : 'hover:bg-slate-700'}">Clientes</a><a href="#admin/orders" class="flex items-center px-4 py-2 rounded-lg ${activeView === 'orders' ? 'bg-slate-700 text-white' : 'hover:bg-slate-700'}">Pedidos</a><a href="#admin/marketing" class="flex items-center px-4 py-2 rounded-lg ${activeView === 'marketing' ? 'bg-slate-700 text-white' : 'hover:bg-slate-700'}">Marketing IA</a></nav><div class="mt-auto"><button data-action="logout" class="w-full text-center text-sm text-slate-400 hover:text-white mb-4">Logout</button><a href="#" class="block text-center text-sm text-slate-400 hover:text-white">Voltar ao Site</a></div></aside>`; appContainer.innerHTML = `<div class="flex h-screen bg-slate-100">${AdminSidebar(view)}<main id="admin-content" class="flex-1 p-8 overflow-y-auto"></main></div>`; const adminContent = document.getElementById('admin-content'); switch (view) { case 'products': renderAdminProducts(adminContent); break; case 'customers': renderAdminCustomers(adminContent); break; case 'orders': renderAdminOrders(adminContent); break; case 'marketing': renderAdminMarketing(adminContent); break; default: renderAdminDashboard(adminContent); break; } }
+function renderAdminPanel(view = 'dashboard') { const AdminSidebar = (activeView) => `<aside class="w-64 bg-slate-800 text-slate-300 p-6 flex-shrink-0 flex flex-col"><h2 class="text-white text-2xl font-bold mb-10">CoolUp Brain</h2><nav class="space-y-2"><a href="#admin/dashboard" class="flex items-center px-4 py-2 rounded-lg ${activeView === 'dashboard' ? 'bg-slate-700 text-white' : 'hover:bg-slate-700'}">Dashboard</a><a href="#admin/products" class="flex items-center px-4 py-2 rounded-lg ${activeView === 'products' ? 'bg-slate-700 text-white' : 'hover:bg-slate-700'}">Produtos</a><a href="#admin/customers" class="flex items-center px-4 py-2 rounded-lg ${activeView === 'customers' ? 'bg-slate-700 text-white' : 'hover:bg-slate-700'}">Clientes</a><a href="#admin/orders" class="flex items-center px-4 py-2 rounded-lg ${activeView === 'orders' ? 'bg-slate-700 text-white' : 'hover:bg-slate-700'}">Pedidos</a><a href="#admin/marketing" class="flex items-center px-4 py-2 rounded-lg ${activeView === 'marketing' ? 'bg-slate-700 text-white' : 'hover:bg-slate-700'}"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path d="M11.984 1.529A.998.998 0 0011 1H9a1 1 0 00-.984.529L6.5 5H2v12h16V5h-4.5l-1.516-3.471zM10 15a4 4 0 110-8 4 4 0 010 8z" /><path d="M10 13a2 2 0 100-4 2 2 0 000 4z" /></svg>Marketing IA</a></nav><div class="mt-auto"><button data-action="logout" class="w-full text-center text-sm text-slate-400 hover:text-white mb-4">Logout</button><a href="#" class="block text-center text-sm text-slate-400 hover:text-white">Voltar ao Site</a></div></aside>`; appContainer.innerHTML = `<div class="flex h-screen bg-slate-100">${AdminSidebar(view)}<main id="admin-content" class="flex-1 p-8 overflow-y-auto"></main></div>`; const adminContent = document.getElementById('admin-content'); switch (view) { case 'products': renderAdminProducts(adminContent); break; case 'customers': renderAdminCustomers(adminContent); break; case 'orders': renderAdminOrders(adminContent); break; case 'marketing': renderAdminMarketing(adminContent); break; default: renderAdminDashboard(adminContent); break; } }
 function renderAdminDashboard(container) { const totalRevenue = localOrders.reduce((sum, order) => sum + (order.status === 'pago' ? order.total : 0), 0); container.innerHTML = `<h1 class="text-3xl font-bold text-slate-900 mb-8">Dashboard</h1><div class="grid grid-cols-1 md:grid-cols-3 gap-6"><div class="bg-white p-6 rounded-lg shadow"><h3 class="text-slate-500 text-sm font-medium">Clientes Ativos</h3><p class="text-3xl font-bold text-blue-600 mt-2">${localCustomers.length}</p></div><div class="bg-white p-6 rounded-lg shadow"><h3 class="text-slate-500 text-sm font-medium">Total de Pedidos</h3><p class="text-3xl font-bold text-green-600 mt-2">${localOrders.length}</p></div><div class="bg-white p-6 rounded-lg shadow"><h3 class="text-slate-500 text-sm font-medium">Receita (Aprovada)</h3><p class="text-3xl font-bold text-amber-600 mt-2">R$ ${totalRevenue.toFixed(2).replace('.', ',')}</p></div></div>`; }
 function renderAdminProducts(container) { container.innerHTML = `<div class="flex justify-between items-center mb-8"><h1 class="text-3xl font-bold text-slate-900">Gerenciar Produtos</h1><button data-action="add-product" class="bg-indigo-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-indigo-700 transition">+ Adicionar Sabor</button></div><div class="bg-white rounded-lg shadow overflow-hidden"><table class="w-full"><thead class="bg-slate-50"><tr><th class="p-4 text-left text-sm font-semibold text-slate-600">Produto</th><th class="p-4 text-left text-sm font-semibold text-slate-600">Preço</th><th class="p-4 text-left text-sm font-semibold text-slate-600">Ações</th></tr></thead><tbody class="divide-y divide-slate-200">${localProducts.map(p => `<tr><td class="p-4 flex items-center"><img src="${p.imageUrl || 'https://placehold.co/100x100/cccccc/FFFFFF?text=CoolUp'}" class="w-12 h-12 rounded-md object-cover mr-4"><span class="font-medium text-slate-900">${p.name}</span></td><td class="p-4 text-slate-700">R$ ${p.price.toFixed(2).replace('.', ',')}</td><td class="p-4"><button data-action="edit-product" data-id="${p.id}" class="text-indigo-600 hover:text-indigo-900 mr-4">Editar</button><button data-action="delete-product" data-id="${p.id}" class="text-red-600 hover:text-red-900">Remover</button></td></tr>`).join('')}</tbody></table></div>`; }
 function renderAdminCustomers(container) { container.innerHTML = `<h1 class="text-3xl font-bold text-slate-900 mb-8">Base de Clientes (CRM)</h1><div class="bg-white rounded-lg shadow overflow-hidden"><table class="w-full text-sm"><thead class="bg-slate-50"><tr><th class="p-3 text-left font-semibold text-slate-600">Nome</th><th class="p-3 text-left font-semibold text-slate-600">WhatsApp</th><th class="p-3 text-left font-semibold text-slate-600">Pedidos</th><th class="p-3 text-left font-semibold text-slate-600">Gasto Total</th><th class="p-3 text-left font-semibold text-slate-600">Ações</th></tr></thead><tbody class="divide-y divide-slate-200">${localCustomers.length === 0 ? `<tr><td colspan="5" class="p-4 text-center text-slate-500">Nenhum cliente encontrado.</td></tr>` : localCustomers.map(c => `<tr><td class="p-3 font-medium text-slate-900">${c.name}</td><td class="p-3 text-slate-600">${c.phone}</td><td class="p-3 text-center text-slate-600">${c.orderCount || 0}</td><td class="p-3 font-bold text-slate-800">R$ ${(c.totalSpent || 0).toFixed(2).replace('.', ',')}</td><td class="p-3"><button data-action="view-customer" data-id="${c.id}" class="bg-blue-100 text-blue-800 text-xs font-semibold px-3 py-1 rounded-full hover:bg-blue-200">Ver Detalhes</button></td></tr>`).join('')}</tbody></table></div>`; }
 function renderAdminOrders(container) { const getStatusClass = (status) => { switch (status) { case 'pago': return 'bg-green-100 text-green-800'; case 'awaiting-confirmation': return 'bg-yellow-100 text-yellow-800'; default: return 'bg-slate-100 text-slate-800'; } }; const formatAddress = (addr) => { if (!addr || !addr.street) return 'N/A'; return `${addr.street}, ${addr.number} - ${addr.neighborhood}, ${addr.city} - ${addr.state}, CEP: ${addr.cep}${addr.complement ? ` (${addr.complement})` : ''}`; }; const formatDate = (timestamp) => { if (!timestamp || !timestamp.seconds) return 'N/A'; return new Date(timestamp.seconds * 1000).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }); }; container.innerHTML = `<h1 class="text-3xl font-bold text-slate-900 mb-8">Histórico de Pedidos</h1><div class="bg-white rounded-lg shadow overflow-hidden"><table class="w-full text-sm"><thead class="bg-slate-50"><tr><th class="p-3 text-left font-semibold text-slate-600">Data</th><th class="p-3 text-left font-semibold text-slate-600">Cliente</th><th class="p-3 text-left font-semibold text-slate-600">Itens</th><th class="p-3 text-left font-semibold text-slate-600">Total</th><th class="p-3 text-left font-semibold text-slate-600">Status</th><th class="p-3 text-left font-semibold text-slate-600">Ações</th></tr></thead><tbody class="divide-y divide-slate-200">${localOrders.length === 0 ? `<tr><td colspan="6" class="p-4 text-center text-slate-500">Nenhum pedido encontrado.</td></tr>` : localOrders.map(o => `<tr><td class="p-3 text-slate-500">${formatDate(o.createdAt)}</td><td class="p-3"><div class="font-medium text-slate-900">${o.customer?.name || 'N/A'}</div><div class="text-slate-500">${o.customer?.phone || ''}</div></td><td class="p-3 text-slate-700">${o.items.map(i => `${i.quantity}x ${i.name}`).join('<br>')}</td><td class="p-3 font-bold text-slate-900">R$ ${o.total.toFixed(2).replace('.', ',')}</td><td class="p-3"><span class="px-2 py-1 text-xs font-medium rounded-full ${getStatusClass(o.status)}">${o.status?.replace('-', ' ') || 'Pendente'}</span></td><td class="p-3">${o.status === 'awaiting-confirmation' ? `<button data-action="confirm-payment" data-id="${o.id}" class="text-sm bg-green-500 text-white px-3 py-1 rounded-md hover:bg-green-600">Confirmar</button>` : ''}</td></tr>`).join('')}</tbody></table></div>`; }
-function renderAdminMarketing(container) { container.innerHTML = `<h1 class="text-3xl font-bold text-slate-900 mb-2">Assistente de Marketing IA</h1><p class="text-slate-600 mb-8">Gere conteúdo criativo para suas redes sociais e mensagens com base nos seus produtos.</p><div class="bg-white p-6 rounded-lg shadow"><div class="grid grid-cols-1 md:grid-cols-2 gap-6"><div><label for="product-select" class="block text-sm font-medium text-slate-700 mb-1">1. Escolha o Produto</label><select id="product-select" class="w-full rounded-md border-slate-300 shadow-sm"><option value="">Selecione um produto...</option>${localProducts.map(p => `<option value="${p.id}">${p.name}</option>`).join('')}</select><label for="platform-select" class="block text-sm font-medium text-slate-700 mt-4 mb-1">2. Escolha a Plataforma</label><select id="platform-select" class="w-full rounded-md border-slate-300 shadow-sm"><option value="instagram">Post para Instagram</option><option value="facebook">Post para Facebook</option><option value="whatsapp">Mensagem para WhatsApp</option></select><label for="tone-select" class="block text-sm font-medium text-slate-700 mt-4 mb-1">3. Escolha o Tom</label><select id="tone-select" class="w-full rounded-md border-slate-300 shadow-sm"><option value="amigavel">Amigável e Casual</option><option value="divertido">Divertido e Engraçado</option><option value="sofisticado">Sofisticado e Premium</option><option value="informativo">Informativo e Saudável</option></select><label for="custom-focus" class="block text-sm font-medium text-slate-700 mt-4 mb-1">4. Foco da Campanha (Opcional)</label><input type="text" id="custom-focus" placeholder="Ex: Promoção de Verão, Dia das Mães" class="w-full rounded-md border-slate-300 shadow-sm"><button data-action="generate-social-post" class="mt-6 w-full bg-indigo-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-indigo-700 transition">Gerar Conteúdo</button></div><div class="bg-slate-50 p-4 rounded-lg"><h3 class="font-semibold text-slate-800 mb-2">Resultado Gerado:</h3><div id="ai-result-container" class="prose prose-sm max-w-none h-64 overflow-y-auto bg-white p-3 rounded-md border border-slate-200 whitespace-pre-wrap"><span class="text-slate-400">O conteúdo gerado pela IA aparecerá aqui...</span></div><button data-action="copy-ai-result" class="mt-4 w-full bg-slate-200 text-slate-800 font-bold py-2 px-4 rounded-lg hover:bg-slate-300 transition hidden">Copiar Texto</button></div></div></div>`; }
+function renderAdminMarketing(container) { container.innerHTML = `<h1 class="text-3xl font-bold text-slate-900 mb-2">Assistente de Marketing IA</h1><p class="text-slate-600 mb-8">Gere conteúdo criativo para suas redes sociais e mensagens com base nos seus produtos.</p><div class="bg-white p-6 rounded-lg shadow"><div class="grid grid-cols-1 md:grid-cols-2 gap-6"><div><label for="product-select" class="block text-sm font-medium text-slate-700 mb-1">1. Escolha o Produto</label><select id="product-select" class="w-full rounded-md border-slate-300 shadow-sm"><option value="">Selecione um produto...</option>${localProducts.map(p => `<option value="${p.id}">${p.name}</option>`).join('')}</select><label for="platform-select" class="block text-sm font-medium text-slate-700 mt-4 mb-1">2. Escolha a Plataforma</label><select id="platform-select" class="w-full rounded-md border-slate-300 shadow-sm"><option value="instagram">Post para Instagram</option><option value="facebook">Post para Facebook</option><option value="whatsapp">Mensagem para WhatsApp</option></select><label for="tone-select" class="block text-sm font-medium text-slate-700 mt-4 mb-1">3. Escolha o Tom</label><select id="tone-select" class="w-full rounded-md border-slate-300 shadow-sm"><option value="amigavel">Amigável e Casual</option><option value="divertido">Divertido e Engraçado</option><option value="sofisticado">Sofisticado e Premium</option><option value="informativo">Informativo e Saudável</option></select><label for="custom-focus" class="block text-sm font-medium text-slate-700 mt-4 mb-1">4. Foco da Campanha (Opcional)</label><input type="text" id="custom-focus" placeholder="Ex: Promoção de Verão, Dia das Mães" class="w-full rounded-md border-slate-300 shadow-sm"><button id="generate-social-post" class="mt-6 w-full bg-indigo-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-indigo-700 transition">Gerar Conteúdo</button></div><div class="bg-slate-50 p-4 rounded-lg"><h3 class="font-semibold text-slate-800 mb-2">Resultado Gerado:</h3><div id="ai-result-container" class="prose prose-sm max-w-none h-64 overflow-y-auto bg-white p-3 rounded-md border border-slate-200 whitespace-pre-wrap"><span class="text-slate-400">O conteúdo gerado pela IA aparecerá aqui...</span></div><button id="copy-ai-result" class="mt-4 w-full bg-slate-200 text-slate-800 font-bold py-2 px-4 rounded-lg hover:bg-slate-300 transition hidden">Copiar Texto</button></div></div></div>`; }
 
-// LÓGICA DE DADOS E ROUTER
-let unsubscribeOrders = null, unsubscribeCustomers = null, initialRenderDone = false;
-onAuthStateChanged(auth, user => { currentUser = user; if (user) { if (!unsubscribeOrders) { unsubscribeOrders = onSnapshot(ordersCollection, (snapshot) => { localOrders = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })).sort((a, b) => b.createdAt.seconds - a.createdAt.seconds); if (window.location.hash.startsWith('#admin')) { router(); } }); } if (!unsubscribeCustomers) { unsubscribeCustomers = onSnapshot(customersCollection, (snapshot) => { localCustomers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })); if (window.location.hash.startsWith('#admin')) { router(); } }); } } else { if (unsubscribeOrders) { unsubscribeOrders(); unsubscribeOrders = null; } if (unsubscribeCustomers) { unsubscribeCustomers(); unsubscribeCustomers = null; } localOrders = []; localCustomers = []; } if(initialRenderDone) { router(); } });
-onSnapshot(productsCollection, (snapshot) => { localProducts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })); if (!initialRenderDone) { router(); initialRenderDone = true; } else { router(); } });
-function router() { const hash = window.location.hash; if (hash.startsWith('#admin')) { if (currentUser) { const view = hash.split('/')[1] || 'dashboard'; renderAdminPanel(view); } else { renderLogin(); } } else { renderPublicSite(); } }
-window.addEventListener('hashchange', router);
-
-// =================================================================================
-// GESTÃO DE EVENTOS CENTRALIZADA
-// =================================================================================
-document.addEventListener('click', async (e) => {
-    const button = e.target.closest('button');
-    if (!button) return;
-
-    const action = button.dataset.action;
-    const id = button.dataset.id;
-    if (!action) return;
-
-    switch (action) {
-        case 'logout': await signOut(auth); break;
-        case 'add-product': openModal(); break;
-        case 'edit-product': openModal(id); break;
-        case 'delete-product': if (confirm('Tem a certeza?')) await deleteDoc(doc(db, "products", id)); break;
-        case 'view-customer': openCustomerModal(id); break;
-        case 'confirm-payment': await updateDoc(doc(db, 'orders', id), { status: 'pago' }); break;
-        case 'order-now': toggleChatbot(); if (chatState.currentStep !== 'selecting_products') { startChat(); showMenu(); } break;
-        case 'add-to-cart': addToCart(id); break;
-        case 'chat-option': handleChatOption(button.dataset.value); break;
-        case 'close-modal': closeModal(); break;
-        case 'add-ingredient': {
-            const list = document.getElementById('ingredients-list');
-            const newIndex = list.children.length;
-            const newIngredientEl = document.createElement('div');
-            newIngredientEl.innerHTML = renderIngredientInput({ name: '', quantity: '' }, newIndex);
-            list.appendChild(newIngredientEl.firstElementChild);
-            break;
-        }
-        case 'remove-ingredient': e.target.closest('.ingredient-item').remove(); break;
-    }
-});
-
-document.addEventListener('submit', async (e) => {
+// LÓGICA DE DADOS, ROUTER E EVENT LISTENERS
+async function handleProductFormSubmit(e) {
     e.preventDefault();
-    switch (e.target.id) {
-        case 'login-form': await handleLoginForm(e.target); break;
-        case 'product-form': await handleProductFormSubmit(e.target); break;
-        case 'chat-input-form': handleChatInput(); break;
-        case 'customer-form': handleCustomerForm(e.target); break;
-        case 'address-form': await handleAddressForm(e.target); break;
-    }
-});
-
-// =================================================================================
-// FUNÇÕES DO MODAL
-// =================================================================================
-const modalContainer = document.getElementById('admin-modal');
-const modalContent = document.getElementById('modal-content');
-
-async function handleProductFormSubmit(form) {
-    const saveButton = form.querySelector('#save-product-button');
+    const form = e.target;
+    const formData = new FormData(form);
+    const id = formData.get('id');
+    const isEditing = id !== '';
+    const saveButton = document.getElementById('save-product-button');
     saveButton.disabled = true;
     saveButton.textContent = 'A guardar...';
 
     try {
-        const formData = new FormData(form);
-        const id = formData.get('id');
-        const isEditing = id !== '';
-        
         const ingredients = [];
         form.querySelectorAll('.ingredient-item').forEach(item => {
             const nameInput = item.querySelector('input[name^="ingredient_name_"]');
@@ -172,7 +119,7 @@ async function handleProductFormSubmit(form) {
             name: formData.get('name'),
             description: formData.get('description'),
             price: parseFloat(formData.get('price')),
-            imageUrl: formData.get('imageUrl'),
+            imageUrl: formData.get('imageUrl'), // Pega a URL do campo de texto
             ingredients: ingredients,
             nutritionalInfo: nutritionalInfo
         };
@@ -194,7 +141,105 @@ async function handleProductFormSubmit(form) {
         }
     }
 }
+let unsubscribeOrders = null, unsubscribeCustomers = null, initialRenderDone = false;
+onAuthStateChanged(auth, user => { currentUser = user; if (user) { if (!unsubscribeOrders) { unsubscribeOrders = onSnapshot(ordersCollection, (snapshot) => { localOrders = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })).sort((a, b) => b.createdAt.seconds - a.createdAt.seconds); if (window.location.hash.startsWith('#admin')) { router(); } }); } if (!unsubscribeCustomers) { unsubscribeCustomers = onSnapshot(customersCollection, (snapshot) => { localCustomers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })); if (window.location.hash.startsWith('#admin')) { router(); } }); } } else { if (unsubscribeOrders) { unsubscribeOrders(); unsubscribeOrders = null; } if (unsubscribeCustomers) { unsubscribeCustomers(); unsubscribeCustomers = null; } localOrders = []; localCustomers = []; } if(initialRenderDone) { router(); } });
+onSnapshot(productsCollection, (snapshot) => { localProducts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })); if (!initialRenderDone) { router(); initialRenderDone = true; } else { router(); } });
+function router() { const hash = window.location.hash; if (hash.startsWith('#admin')) { if (currentUser) { const view = hash.split('/')[1] || 'dashboard'; renderAdminPanel(view); } else { renderLogin(); } } else { renderPublicSite(); } }
 
+document.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const form = e.target;
+    switch (form.id) {
+        case 'login-form': {
+            const email = form.email.value;
+            const password = form.password.value;
+            const errorEl = document.getElementById('login-error');
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+                window.location.hash = '#admin';
+            } catch (error) {
+                errorEl.textContent = "Email ou palavra-passe inválidos.";
+                errorEl.classList.remove('hidden');
+            }
+            break;
+        }
+        case 'product-form':
+            await handleProductFormSubmit(form);
+            break;
+        case 'chat-input-form': {
+            const input = document.getElementById('chat-text-input');
+            if (input.value.trim()) handleTextInput(input.value.trim());
+            input.value = '';
+            break;
+        }
+        case 'customer-form':
+            chatState.customer.name = document.getElementById('customer-name').value;
+            chatState.customer.phone = document.getElementById('customer-phone').value;
+            addUserMessage(`Nome: ${chatState.customer.name}`);
+            askForAddress();
+            break;
+        case 'address-form':
+            chatState.address.cep = form.elements.cep.value;
+            chatState.address.street = form.elements.street.value;
+            chatState.address.number = form.elements.number.value;
+            chatState.address.complement = form.elements.complement.value;
+            chatState.address.neighborhood = form.elements.neighborhood.value;
+            chatState.address.city = form.elements.city.value;
+            chatState.address.state = form.elements.state.value;
+            addUserMessage(`Endereço: ${form.elements.street.value}, ${form.elements.number.value}`);
+            await showFinalSummary();
+            break;
+    }
+});
+
+document.addEventListener('click', async (e) => {
+    const button = e.target.closest('button');
+    if (!button) return;
+
+    const action = button.dataset.action;
+    const id = button.dataset.id;
+    if (!action) return;
+
+    switch (action) {
+        case 'logout': await signOut(auth); break;
+        case 'add-product': openModal(); break;
+        case 'edit-product': openModal(id); break;
+        case 'delete-product': if (confirm('Tem a certeza que deseja remover este produto?')) await deleteDoc(doc(db, "products", id)); break;
+        case 'close-modal': closeModal(); break;
+        case 'add-ingredient': {
+            const list = document.getElementById('ingredients-list');
+            const newIndex = list.children.length;
+            const newIngredientEl = document.createElement('div');
+            newIngredientEl.innerHTML = renderIngredientInput({ name: '', quantity: '' }, newIndex);
+            list.appendChild(newIngredientEl.firstElementChild);
+            break;
+        }
+        case 'remove-ingredient': e.target.closest('.ingredient-item').remove(); break;
+        case 'order-now': toggleChatbot(); if (chatState.currentStep !== 'selecting_products') { startChat(); showMenu(); } break;
+        case 'chat-option': handleChatOption(button.dataset.value); break;
+        case 'add-to-cart': addToCart(id); break;
+        case 'confirm-payment': await updateDoc(doc(db, 'orders', id), { status: 'pago' }); break;
+        case 'view-customer': openCustomerModal(id); break;
+        case 'send-whatsapp-message': {
+             const customerId = button.dataset.customerId;
+             const customer = localCustomers.find(c => c.id === customerId);
+             const productToPromote = document.getElementById('whatsapp-product-select').value;
+             if (!productToPromote) { alert('Selecione um produto para promover.'); return; }
+             button.disabled = true; button.textContent = 'A gerar...';
+             const product = localProducts.find(p => p.id === productToPromote);
+             const prompt = `Crie uma mensagem curta e amigável para WhatsApp para o cliente ${customer.name}, oferecendo o produto "${product.name}". Mencione que lembrou dele(a) e que este produto é especial. Use emojis.`;
+             const message = await getApiResponse(prompt);
+             const whatsappUrl = `https://api.whatsapp.com/send?phone=${customer.phone.replace(/\D/g, '')}&text=${encodeURIComponent(message)}`;
+             window.open(whatsappUrl, '_blank');
+             button.disabled = false; button.textContent = 'Gerar e Enviar via WhatsApp';
+             break;
+        }
+    }
+});
+window.addEventListener('hashchange', router);
+
+// FUNÇÕES DO MODAL
+const modalContainer = document.getElementById('admin-modal'); const modalContent = document.getElementById('modal-content');
 function openModal(productId = null) {
     const isEditing = productId !== null;
     const product = isEditing ? localProducts.find(p => p.id === productId) : { name: '', description: '', price: '', imageUrl: '', ingredients: [] };
@@ -221,7 +266,6 @@ function openModal(productId = null) {
         </form>`;
     modalContainer.classList.remove('hidden');
     
-    // Adicionar listener para o botão de gerar descrição com IA
     modalContent.querySelector('#generate-description-ai').addEventListener('click', async (e) => {
         const button = e.target;
         const form = document.getElementById('product-form');
