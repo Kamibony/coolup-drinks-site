@@ -143,8 +143,12 @@ async function handleProductFormSubmit(e) {
     } catch (error) {
         console.error("ERRO DETALHADO ao guardar produto:", error);
         alert(`Não foi possível guardar o produto: ${error.message}`);
-        saveButton.disabled = false;
-        saveButton.textContent = 'Guardar Produto';
+    } finally {
+        // **ADIÇÃO IMPORTANTE: Garante que o botão seja reativado mesmo se houver erro**
+        if(saveButton) {
+            saveButton.disabled = false;
+            saveButton.textContent = 'Guardar Produto';
+        }
     }
 }
 let unsubscribeOrders = null, unsubscribeCustomers = null, initialRenderDone = false;
@@ -330,6 +334,7 @@ async function handleCepInput(e) {
             if (data.erro) {
                 throw new Error('CEP não encontrado.');
             }
+            // **CORREÇÃO: de 'logouro' para 'logradouro'**
             document.querySelector('[name="street"]').value = data.logradouro;
             document.querySelector('[name="neighborhood"]').value = data.bairro;
             document.querySelector('[name="city"]').value = data.localidade;
