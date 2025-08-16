@@ -117,10 +117,16 @@ async function handleProductFormSubmit(e) {
         }
 
         const ingredients = [];
-        document.querySelectorAll('.ingredient-item').forEach((item, index) => {
-            const name = form.querySelector(`[name="ingredient_name_${index}"]`).value;
-            const quantity = form.querySelector(`[name="ingredient_quantity_${index}"]`).value;
-            if (name && quantity) ingredients.push({ name, quantity });
+        // **CORREÇÃO: Leitura correta dos ingredientes**
+        form.querySelectorAll('.ingredient-item').forEach(item => {
+            const nameInput = item.querySelector('input[name^="ingredient_name_"]');
+            const quantityInput = item.querySelector('input[name^="ingredient_quantity_"]');
+            if (nameInput && quantityInput && nameInput.value && quantityInput.value) {
+                ingredients.push({
+                    name: nameInput.value,
+                    quantity: quantityInput.value
+                });
+            }
         });
         
         const nutritionalInfo = await getNutritionalInfo(ingredients);
@@ -144,7 +150,6 @@ async function handleProductFormSubmit(e) {
         console.error("ERRO DETALHADO ao guardar produto:", error);
         alert(`Não foi possível guardar o produto: ${error.message}`);
     } finally {
-        // **ADIÇÃO IMPORTANTE: Garante que o botão seja reativado mesmo se houver erro**
         if(saveButton) {
             saveButton.disabled = false;
             saveButton.textContent = 'Guardar Produto';
@@ -201,7 +206,6 @@ function openModal(productId = null) {
         </form>`;
     modalContainer.classList.remove('hidden');
     
-    // CORREÇÃO: Adiciona o listener de submit diretamente ao formulário recém-criado
     modalContent.querySelector('#product-form').addEventListener('submit', handleProductFormSubmit);
 
     const imageFileInput = modalContent.querySelector('[name="imageFile"]');
@@ -221,7 +225,6 @@ function openModal(productId = null) {
 function renderIngredientInput(ingredient, index) { return `<div class="ingredient-item flex items-center gap-2"><input type="text" name="ingredient_name_${index}" placeholder="Nome" required class="flex-grow rounded-md border-slate-300 shadow-sm text-sm" value="${ingredient.name || ''}"><input type="number" name="ingredient_quantity_${index}" placeholder="Qtd (g/ml)" required class="w-24 rounded-md border-slate-300 shadow-sm text-sm" value="${ingredient.quantity || ''}"><button type="button" data-action="remove-ingredient" class="text-red-500 hover:text-red-700 p-1 rounded-full text-xl leading-none">&times;</button></div>`; }
 function closeModal() { modalContainer.classList.add('hidden'); modalContent.innerHTML = ''; }
 
-// **NOVA FUNÇÃO: MODAL DE DETALHES DO CLIENTE (CRM)**
 function openCustomerModal(customerId) {
     const customer = localCustomers.find(c => c.id === customerId);
     if (!customer) return;
@@ -334,7 +337,6 @@ async function handleCepInput(e) {
             if (data.erro) {
                 throw new Error('CEP não encontrado.');
             }
-            // **CORREÇÃO: de 'logouro' para 'logradouro'**
             document.querySelector('[name="street"]').value = data.logradouro;
             document.querySelector('[name="neighborhood"]').value = data.bairro;
             document.querySelector('[name="city"]').value = data.localidade;
