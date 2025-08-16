@@ -100,13 +100,13 @@ async function handleProductFormSubmit(e) {
     const isEditing = id !== '';
     const saveButton = document.getElementById('save-product-button');
     saveButton.disabled = true;
-    saveButton.textContent = 'A guardar...';
 
     let imageUrl = formData.get('existingImageUrl');
     const imageFile = form.elements.imageFile.files[0];
 
     try {
         if (imageFile) {
+            saveButton.textContent = 'A enviar imagem...';
             const storageRef = ref(storage, `products/${Date.now()}-${imageFile.name}`);
             const snapshot = await uploadBytes(storageRef, imageFile);
             imageUrl = await getDownloadURL(snapshot.ref);
@@ -117,7 +117,6 @@ async function handleProductFormSubmit(e) {
         }
 
         const ingredients = [];
-        // **CORREÇÃO: Leitura correta dos ingredientes**
         form.querySelectorAll('.ingredient-item').forEach(item => {
             const nameInput = item.querySelector('input[name^="ingredient_name_"]');
             const quantityInput = item.querySelector('input[name^="ingredient_quantity_"]');
@@ -129,6 +128,7 @@ async function handleProductFormSubmit(e) {
             }
         });
         
+        saveButton.textContent = 'A analisar com IA...';
         const nutritionalInfo = await getNutritionalInfo(ingredients);
 
         const productData = {
@@ -139,7 +139,8 @@ async function handleProductFormSubmit(e) {
             ingredients: ingredients,
             nutritionalInfo: nutritionalInfo
         };
-
+        
+        saveButton.textContent = 'A finalizar...';
         if (isEditing) {
             await setDoc(doc(db, "products", id), productData);
         } else {
@@ -173,10 +174,170 @@ document.addEventListener('submit', async (e) => {
     if (formId === 'address-form') { const form = e.target; chatState.address.cep = form.elements.cep.value; chatState.address.street = form.elements.street.value; chatState.address.number = form.elements.number.value; chatState.address.complement = form.elements.complement.value; chatState.address.neighborhood = form.elements.neighborhood.value; chatState.address.city = form.elements.city.value; chatState.address.state = form.elements.state.value; addUserMessage(`Endereço: ${form.elements.street.value}, ${form.elements.number.value}`); await showFinalSummary(); }
 });
 
-document.addEventListener('click', async (e) => { const button = e.target.closest('button'); if (!button) return; const action = button.dataset.action; const id = button.dataset.id; if (action === 'logout') await signOut(auth); if (action === 'add-product') openModal(); if (action === 'edit-product') openModal(id); if (action === 'delete-product') { if (confirm('Tem a certeza que deseja remover este produto?')) { await deleteDoc(doc(db, "products", id)); } } if (action === 'close-modal') closeModal(); if (action === 'add-ingredient') { const list = document.getElementById('ingredients-list'); const newIndex = list.children.length; const newIngredientEl = document.createElement('div'); newIngredientEl.innerHTML = renderIngredientInput({ name: '', quantity: '' }, newIndex); list.appendChild(newIngredientEl.firstElementChild); } if (action === 'remove-ingredient') e.target.closest('.ingredient-item').remove(); if (action === 'order-now') { toggleChatbot(); if (chatState.currentStep !== 'selecting_products') { startChat(); showMenu(); } } if (action === 'chat-option') { const value = button.dataset.value; if (value === 'start_order') showMenu(); if (value === 'continue_shopping') { addUserMessage('Adicionar mais itens'); addBotMessage('O que mais gostaria?'); showMenu(); } if (value === 'checkout') askForCustomerInfo(); if (value === 'pay') await showPixPayment(); if (value === 'payment-confirmed') { const orderDocRef = doc(db, 'orders', chatState.orderId); await updateDoc(orderDocRef, { status: 'awaiting-confirmation' }); localStorage.setItem('pendingOrderId', chatState.orderId); addBotMessage('Obrigado! Recebemos a sua confirmação. O seu pedido será preparado assim que o pagamento for verificado.'); listenForPaymentConfirmation(chatState.orderId); renderChatInterface([{ label: 'Iniciar Novo Pedido', value: 'restart' }]); } if (value === 'restart') { localStorage.removeItem('pendingOrderId'); startChat(); } } if (action === 'add-to-cart') addToCart(id); if (button.id === 'generate-description-ai') { const form = document.getElementById('product-form'); const productName = form.name.value; const ingredients = []; document.querySelectorAll('.ingredient-item').forEach((item, index) => { const name = form.querySelector(`[name="ingredient_name_${index}"]`).value; if (name) ingredients.push(name); }); if (!productName || ingredients.length === 0) { alert('Por favor, preencha o nome e pelo menos um ingrediente para a IA criar a descrição.'); return; } button.textContent = 'A criar...'; button.disabled = true; const prompt = `Crie uma descrição de produto curta (2-3 frases), apetitosa e convidativa para uma bebida chamada "${productName}". Os ingredientes principais são: ${ingredients.join(', ')}. Foque nos sentimentos de frescor, sabor e bem-estar. Não inclua o preço.`; const aiDescription = await getApiResponse(prompt); if (aiDescription.startsWith('ERRO:')) { form.description.value = ''; alert(aiDescription); } else { form.description.value = aiDescription; } button.textContent = 'Gerar com IA'; button.disabled = false; } if (button.id === 'generate-social-post') { const productId = document.getElementById('product-select').value; const platform = document.getElementById('platform-select').value; const tone = document.getElementById('tone-select').value; const focus = document.getElementById('custom-focus').value; const resultContainer = document.getElementById('ai-result-container'); const copyButton = document.getElementById('copy-ai-result'); if (!productId) { resultContainer.innerHTML = '<span class="text-red-500">Por favor, selecione um produto primeiro.</span>'; return; } button.textContent = 'A gerar...'; button.disabled = true; resultContainer.innerHTML = '<span class="text-slate-400">A IA está a pensar...</span>'; copyButton.classList.add('hidden'); const product = localProducts.find(p => p.id === productId); const prompt = `Você é um especialista em marketing de redes sociais para a marca 'CoolUp Drinks'. Crie um texto para um ${platform} sobre o nosso produto "${product.name}".\n- Descrição do produto: ${product.description}.\n- O tom da comunicação deve ser: ${tone}.\n- ${focus ? `O foco da campanha é: ${focus}.` : ''}\n- O texto deve ser cativante, curto e direto.\n- Se for para Instagram ou Facebook, inclua 3 a 5 hashtags relevantes no final.\n- Se for para WhatsApp, use emojis e uma linguagem mais direta, talvez com uma pergunta para iniciar a conversa.`; const aiResult = await getApiResponse(prompt); if (aiResult.startsWith('ERRO:')) { resultContainer.innerHTML = `<span class="text-red-500">${aiResult}</span>`; } else { resultContainer.textContent = aiResult; copyButton.classList.remove('hidden'); } button.textContent = 'Gerar Conteúdo'; button.disabled = false; } if (button.id === 'copy-ai-result') { const textToCopy = document.getElementById('ai-result-container').textContent; const textArea = document.createElement("textarea"); textArea.value = textToCopy; document.body.appendChild(textArea); textArea.select(); try { document.execCommand('copy'); button.textContent = 'Copiado!'; setTimeout(() => button.textContent = 'Copiar Texto', 2000); } catch (err) { console.error('Falha ao copiar texto: ', err); button.textContent = 'Erro ao copiar'; } document.body.removeChild(textArea); } if (action === 'confirm-payment') { const orderDocRef = doc(db, 'orders', id); await updateDoc(orderDocRef, { status: 'pago' }); } if (action === 'view-customer') { openCustomerModal(id); } if (action === 'send-whatsapp-message') { const customerId = button.dataset.customerId; const customer = localCustomers.find(c => c.id === customerId); const productToPromote = document.getElementById('whatsapp-product-select').value; if (!productToPromote) { alert('Selecione um produto para promover.'); return; } button.disabled = true; button.textContent = 'A gerar...'; const product = localProducts.find(p => p.id === productToPromote); const prompt = `Crie uma mensagem curta e amigável para WhatsApp para o cliente ${customer.name}, oferecendo o produto "${product.name}". Mencione que lembrou dele(a) e que este produto é especial. Use emojis.`; const message = await getApiResponse(prompt); const whatsappUrl = `https://api.whatsapp.com/send?phone=${customer.phone.replace(/\D/g, '')}&text=${encodeURIComponent(message)}`; window.open(whatsappUrl, '_blank'); button.disabled = false; button.textContent = 'Gerar e Enviar via WhatsApp'; } });
+// **CORREÇÃO: Listener de eventos principal refatorado com switch case**
+document.addEventListener('click', async (e) => {
+    const button = e.target.closest('button');
+    if (!button) return;
+
+    const action = button.dataset.action;
+    const id = button.dataset.id;
+    if (!action) return;
+
+    switch (action) {
+        case 'logout':
+            await signOut(auth);
+            break;
+        case 'add-product':
+            openModal();
+            break;
+        case 'edit-product':
+            openModal(id);
+            break;
+        case 'delete-product':
+            if (confirm('Tem a certeza que deseja remover este produto?')) {
+                await deleteDoc(doc(db, "products", id));
+            }
+            break;
+        case 'close-modal':
+            closeModal();
+            break;
+        case 'add-ingredient': {
+            const list = document.getElementById('ingredients-list');
+            const newIndex = list.children.length;
+            const newIngredientEl = document.createElement('div');
+            newIngredientEl.innerHTML = renderIngredientInput({ name: '', quantity: '' }, newIndex);
+            list.appendChild(newIngredientEl.firstElementChild);
+            break;
+        }
+        case 'remove-ingredient':
+            e.target.closest('.ingredient-item').remove();
+            break;
+        case 'order-now':
+            toggleChatbot();
+            if (chatState.currentStep !== 'selecting_products') {
+                startChat();
+                showMenu();
+            }
+            break;
+        case 'add-to-cart':
+            addToCart(id);
+            break;
+        case 'chat-option': {
+            const value = button.dataset.value;
+            if (value === 'start_order') showMenu();
+            if (value === 'continue_shopping') { addUserMessage('Adicionar mais itens'); addBotMessage('O que mais gostaria?'); showMenu(); }
+            if (value === 'checkout') askForCustomerInfo();
+            if (value === 'pay') await showPixPayment();
+            if (value === 'payment-confirmed') {
+                const orderDocRef = doc(db, 'orders', chatState.orderId);
+                await updateDoc(orderDocRef, { status: 'awaiting-confirmation' });
+                localStorage.setItem('pendingOrderId', chatState.orderId);
+                addBotMessage('Obrigado! Recebemos a sua confirmação. O seu pedido será preparado assim que o pagamento for verificado.');
+                listenForPaymentConfirmation(chatState.orderId);
+                renderChatInterface([{ label: 'Iniciar Novo Pedido', value: 'restart' }]);
+            }
+            if (value === 'restart') {
+                localStorage.removeItem('pendingOrderId');
+                startChat();
+            }
+            break;
+        }
+        case 'confirm-payment': {
+            const orderDocRef = doc(db, 'orders', id);
+            await updateDoc(orderDocRef, { status: 'pago' });
+            break;
+        }
+        case 'view-customer':
+            openCustomerModal(id);
+            break;
+        case 'send-whatsapp-message': {
+            const customerId = button.dataset.customerId;
+            const customer = localCustomers.find(c => c.id === customerId);
+            const productToPromote = document.getElementById('whatsapp-product-select').value;
+            if (!productToPromote) {
+                alert('Selecione um produto para promover.');
+                return;
+            }
+            button.disabled = true;
+            button.textContent = 'A gerar...';
+            const product = localProducts.find(p => p.id === productToPromote);
+            const prompt = `Crie uma mensagem curta e amigável para WhatsApp para o cliente ${customer.name}, oferecendo o produto "${product.name}". Mencione que lembrou dele(a) e que este produto é especial. Use emojis.`;
+            const message = await getApiResponse(prompt);
+            const whatsappUrl = `https://api.whatsapp.com/send?phone=${customer.phone.replace(/\D/g, '')}&text=${encodeURIComponent(message)}`;
+            window.open(whatsappUrl, '_blank');
+            button.disabled = false;
+            button.textContent = 'Gerar e Enviar via WhatsApp';
+            break;
+        }
+        default:
+            // Lida com cliques em botões de IA dentro do modal, que não têm data-action
+            if (button.id === 'generate-description-ai') {
+                const form = document.getElementById('product-form');
+                const productName = form.name.value;
+                const ingredients = [];
+                document.querySelectorAll('.ingredient-item').forEach(item => {
+                    const name = item.querySelector(`input[name^="ingredient_name_"]`).value;
+                    if (name) ingredients.push(name);
+                });
+                if (!productName || ingredients.length === 0) {
+                    alert('Por favor, preencha o nome e pelo menos um ingrediente para a IA criar a descrição.');
+                    return;
+                }
+                button.textContent = 'A criar...';
+                button.disabled = true;
+                const prompt = `Crie uma descrição de produto curta (2-3 frases), apetitosa e convidativa para uma bebida chamada "${productName}". Os ingredientes principais são: ${ingredients.join(', ')}. Foque nos sentimentos de frescor, sabor e bem-estar. Não inclua o preço.`;
+                const aiDescription = await getApiResponse(prompt);
+                if (aiDescription.startsWith('ERRO:')) {
+                    form.description.value = '';
+                    alert(aiDescription);
+                } else {
+                    form.description.value = aiDescription;
+                }
+                button.textContent = 'Gerar com IA';
+                button.disabled = false;
+            } else if (button.id === 'generate-social-post') {
+                const productId = document.getElementById('product-select').value;
+                const platform = document.getElementById('platform-select').value;
+                const tone = document.getElementById('tone-select').value;
+                const focus = document.getElementById('custom-focus').value;
+                const resultContainer = document.getElementById('ai-result-container');
+                const copyButton = document.getElementById('copy-ai-result');
+                if (!productId) {
+                    resultContainer.innerHTML = '<span class="text-red-500">Por favor, selecione um produto primeiro.</span>';
+                    return;
+                }
+                button.textContent = 'A gerar...';
+                button.disabled = true;
+                resultContainer.innerHTML = '<span class="text-slate-400">A IA está a pensar...</span>';
+                copyButton.classList.add('hidden');
+                const product = localProducts.find(p => p.id === productId);
+                const prompt = `Você é um especialista em marketing de redes sociais para a marca 'CoolUp Drinks'. Crie um texto para um ${platform} sobre o nosso produto "${product.name}".\n- Descrição do produto: ${product.description}.\n- O tom da comunicação deve ser: ${tone}.\n- ${focus ? `O foco da campanha é: ${focus}.` : ''}\n- O texto deve ser cativante, curto e direto.\n- Se for para Instagram ou Facebook, inclua 3 a 5 hashtags relevantes no final.\n- Se for para WhatsApp, use emojis e uma linguagem mais direta, talvez com uma pergunta para iniciar a conversa.`;
+                const aiResult = await getApiResponse(prompt);
+                if (aiResult.startsWith('ERRO:')) {
+                    resultContainer.innerHTML = `<span class="text-red-500">${aiResult}</span>`;
+                } else {
+                    resultContainer.textContent = aiResult;
+                    copyButton.classList.remove('hidden');
+                }
+                button.textContent = 'Gerar Conteúdo';
+                button.disabled = false;
+            } else if (button.id === 'copy-ai-result') {
+                const textToCopy = document.getElementById('ai-result-container').textContent;
+                navigator.clipboard.writeText(textToCopy).then(() => {
+                    button.textContent = 'Copiado!';
+                    setTimeout(() => button.textContent = 'Copiar Texto', 2000);
+                }).catch(err => {
+                    console.error('Falha ao copiar texto: ', err);
+                    button.textContent = 'Erro ao copiar';
+                });
+            }
+            break;
+    }
+});
+
 window.addEventListener('hashchange', router);
 
-// FUNÇÕES DO MODAL (ATUALIZADO PARA UPLOAD DE IMAGEM E CORREÇÃO DE EVENTO)
+// FUNÇÕES DO MODAL
 const modalContainer = document.getElementById('admin-modal'); const modalContent = document.getElementById('modal-content');
 function openModal(productId = null) {
     const isEditing = productId !== null;
