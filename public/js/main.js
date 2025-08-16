@@ -107,11 +107,9 @@ async function handleProductFormSubmit(e) {
 
     try {
         if (imageFile) {
-            console.log("A fazer upload de nova imagem...");
             const storageRef = ref(storage, `products/${Date.now()}-${imageFile.name}`);
             const snapshot = await uploadBytes(storageRef, imageFile);
             imageUrl = await getDownloadURL(snapshot.ref);
-            console.log("Upload concluído:", imageUrl);
         }
 
         if (!imageUrl && !isEditing) {
@@ -125,7 +123,6 @@ async function handleProductFormSubmit(e) {
             if (name && quantity) ingredients.push({ name, quantity });
         });
         
-        console.log("A obter informações nutricionais...");
         const nutritionalInfo = await getNutritionalInfo(ingredients);
 
         const productData = {
@@ -137,13 +134,11 @@ async function handleProductFormSubmit(e) {
             nutritionalInfo: nutritionalInfo
         };
 
-        console.log("A guardar dados no Firestore...");
         if (isEditing) {
             await setDoc(doc(db, "products", id), productData);
         } else {
             await addDoc(productsCollection, productData);
         }
-        console.log("Produto guardado com sucesso.");
         closeModal();
     } catch (error) {
         console.error("ERRO DETALHADO ao guardar produto:", error);
@@ -160,7 +155,6 @@ function router() { const hash = window.location.hash; if (hash.startsWith('#adm
 // CORREÇÃO: Listener de eventos de submissão de formulário
 document.addEventListener('submit', async (e) => {
     const formId = e.target.id;
-    // Apenas lida com formulários que não são criados dinamicamente
     if (formId === 'login-form' || formId === 'chat-input-form' || formId === 'customer-form' || formId === 'address-form') {
         e.preventDefault();
     }
