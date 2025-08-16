@@ -107,7 +107,6 @@ async function handleProductFormSubmit(e) {
     const imageFile = form.imageFile.files[0];
 
     try {
-        // Se um novo ficheiro foi selecionado, faz o upload
         if (imageFile) {
             const storageRef = ref(storage, `products/${Date.now()}-${imageFile.name}`);
             const snapshot = await uploadBytes(storageRef, imageFile);
@@ -134,7 +133,7 @@ async function handleProductFormSubmit(e) {
             name: formData.get('name'),
             description: formData.get('description'),
             price: parseFloat(formData.get('price')),
-            imageUrl: imageUrl, // Usa a nova URL ou a antiga
+            imageUrl: imageUrl,
             ingredients: ingredients,
             nutritionalInfo: nutritionalInfo
         };
@@ -159,7 +158,7 @@ function router() { const hash = window.location.hash; if (hash.startsWith('#adm
 document.addEventListener('submit', async (e) => {
     e.preventDefault();
     if (e.target.id === 'login-form') { const email = e.target.email.value; const password = e.target.password.value; const errorEl = document.getElementById('login-error'); try { await signInWithEmailAndPassword(auth, email, password); window.location.hash = '#admin'; } catch (error) { errorEl.textContent = "Email ou palavra-passe inválidos."; errorEl.classList.remove('hidden'); } }
-    if (e.target.id === 'product-form') handleProductFormSubmit(e);
+    if (e.target.id === 'product-form') { await handleProductFormSubmit(e); } // CORREÇÃO AQUI
     if (e.target.id === 'chat-input-form') { const input = document.getElementById('chat-text-input'); if (input.value.trim()) handleTextInput(input.value.trim()); input.value = ''; }
     if (e.target.id === 'customer-form') { chatState.customer.name = document.getElementById('customer-name').value; chatState.customer.phone = document.getElementById('customer-phone').value; addUserMessage(`Nome: ${chatState.customer.name}`); askForAddress(); }
     if (e.target.id === 'address-form') { const form = e.target; chatState.address.cep = form.elements.cep.value; chatState.address.street = form.elements.street.value; chatState.address.number = form.elements.number.value; chatState.address.complement = form.elements.complement.value; chatState.address.neighborhood = form.elements.neighborhood.value; chatState.address.city = form.elements.city.value; chatState.address.state = form.elements.state.value; addUserMessage(`Endereço: ${form.elements.street.value}, ${form.elements.number.value}`); await showFinalSummary(); }
@@ -197,7 +196,6 @@ function openModal(productId = null) {
         </form>`;
     modalContainer.classList.remove('hidden');
     
-    // Adiciona listener para o preview da imagem
     const imageFileInput = modalContent.querySelector('[name="imageFile"]');
     const imagePreview = modalContent.querySelector('#image-preview');
     imageFileInput.addEventListener('change', () => {
