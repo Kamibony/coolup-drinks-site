@@ -155,7 +155,11 @@ onAuthStateChanged(auth, user => { currentUser = user; if (user) { if (!unsubscr
 onSnapshot(productsCollection, (snapshot) => { localProducts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })); if (!initialRenderDone) { router(); initialRenderDone = true; } else { router(); } });
 function router() { const hash = window.location.hash; if (hash.startsWith('#admin')) { if (currentUser) { const view = hash.split('/')[1] || 'dashboard'; renderAdminPanel(view); } else { renderLogin(); } } else { renderPublicSite(); } }
 document.addEventListener('submit', async (e) => {
-    e.preventDefault();
+    // CORREÇÃO: Previne o comportamento padrão apenas para os formulários que queremos
+    if (e.target.id === 'login-form' || e.target.id === 'chat-input-form' || e.target.id === 'customer-form' || e.target.id === 'address-form') {
+        e.preventDefault();
+    }
+    
     if (e.target.id === 'login-form') { const email = e.target.email.value; const password = e.target.password.value; const errorEl = document.getElementById('login-error'); try { await signInWithEmailAndPassword(auth, email, password); window.location.hash = '#admin'; } catch (error) { errorEl.textContent = "Email ou palavra-passe inválidos."; errorEl.classList.remove('hidden'); } }
     if (e.target.id === 'chat-input-form') { const input = document.getElementById('chat-text-input'); if (input.value.trim()) handleTextInput(input.value.trim()); input.value = ''; }
     if (e.target.id === 'customer-form') { chatState.customer.name = document.getElementById('customer-name').value; chatState.customer.phone = document.getElementById('customer-phone').value; addUserMessage(`Nome: ${chatState.customer.name}`); askForAddress(); }
